@@ -7,7 +7,11 @@ spring:
     generate-ddl: true
   liquibase:
     enabled: false
-security:
-  ignored: /**
-  basic:
-    enable: false
+  security:
+    user:
+      name: marco
+      password: polo
+#      role:
+    ignored: /**
+    basic:
+      enable: false
