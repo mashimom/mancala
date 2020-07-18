@@ -1,12 +1,33 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.1.RELEASE'
+	id 'build-dashboard'
+	id 'com.google.cloud.tools.jib' version '2.4.0'
+	id 'com.palantir.git-version' version '0.12.2'
+	id 'groovy'
+	id 'idea'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'jacoco'
 	id 'java'
+	id 'nebula.maven-publish' version '17.0.0'
+	id 'nebula.project' version '7.0.9'
+	id 'org.springframework.boot' version '2.3.1.RELEASE'
+	id 'project-report'
 }
 
+apply plugin: 'nebula.facet'
+
+//noinspection GroovyUnusedAssignment
 group = 'org.shimomoto'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '14'
+version gitVersion()
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_14
+
+facets {
+	integrationTest {
+		parentSourceSet = 'test'
+		testTaskName = 'integrationTest'
+	}
+}
 
 configurations {
 	compileOnly {
@@ -19,16 +40,24 @@ repositories {
 }
 
 dependencies {
+	annotationProcessor 'org.projectlombok:lombok'
+
+	compileOnly 'org.projectlombok:lombok'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	implementation 'org.jetbrains:annotations:19.0.0'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	implementation 'commons-codec:commons-codec:1.14'
+	implementation 'com.codepoetics:protonpack:1.16'
+	implementation 'com.google.guava:guava:29.0-jre'
+
 	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
