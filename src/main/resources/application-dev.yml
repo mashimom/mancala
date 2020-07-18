@@ -1,0 +1,13 @@
+---
+debug: true
+spring:
+  jpa:
+    hibernate:
+    ddl-auto: create
+    generate-ddl: true
+  liquibase:
+    enabled: false
+security:
+  ignored: /**
+  basic:
+    enable: false
