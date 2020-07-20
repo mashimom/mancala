@@ -32,6 +32,21 @@ public class RawBoard {
 	}
 
 	public void move(Player player, int position) {
+		//holds the pieces for position
+		int holden = board[position];
 
+		//calculates intermediate values
+		int rounds = holden / 14;
+		int extra = holden % 14;
+
+		//makes changes
+		board[position] = 0;
+		for (int i = 0; i < board.length; i++) {
+			board[i] += rounds;
+			if (extra > 0 && i > position) {
+				board[i]++;
+				extra--;
+			}
+		}
 	}
 }
