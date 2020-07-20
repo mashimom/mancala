@@ -18,7 +18,7 @@ class MechanicsSpec extends Specification {
 		def endsAt = extra + position
 
 		when:
-		board[position] = 0;
+		board[position] = 0
 		for (int i = 0; i < board.length; i++) {
 			board[i] += rounds
 			if (extra > 0 && i > position) {
@@ -48,7 +48,7 @@ class MechanicsSpec extends Specification {
 		def endsAt = extra + position
 
 		when:
-		board[position] = 0;
+		board[position] = 0
 		for (int i = 0; i < board.length; i++) {
 			board[i] += rounds
 			if (extra > 0 && i > position) {
@@ -78,7 +78,7 @@ class MechanicsSpec extends Specification {
 		def endsAt = extra + position
 
 		when:
-		board[position] = 0;
+		board[position] = 0
 		for (int i = 0; i < board.length; i++) {
 			board[i] += rounds
 			if (extra > 0 && i > position) {
@@ -86,10 +86,10 @@ class MechanicsSpec extends Specification {
 				extra--
 			}
 		}
-		def steal = (0..5).contains(endsAt) && board[endsAt] == 1
 		def extraTurn = endsAt == 6
-		if(steal) {
-			int opposingPos = 12-endsAt
+		def steal = (0..5).contains(endsAt) && board[endsAt] == 1
+		if (steal) {
+			int opposingPos = 12 - endsAt
 			board[6] += (board[opposingPos] + board[endsAt])
 			board[opposingPos] = 0
 			board[endsAt] = 0
