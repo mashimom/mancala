@@ -185,5 +185,55 @@ class RawBoardSpec extends Specification {
 		b.turnCount == 11
 	}
 
+	def "Has the game ended accepts"() {
+		given:
+		RawBoard board1 = RawBoard.builder()
+				.board([0, 0, 0, 0, 0, 0, 30, 1, 2, 3, 4, 5, 6, 7] as int[])
+				.build()
+		RawBoard board2 = RawBoard.builder()
+				.board([2, 3, 4, 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 42] as int[])
+				.build()
 
+		expect:
+		board1.isEndOfGame()
+		board2.isEndOfGame()
+	}
+
+	def "Has the game ended rejects"() {
+		given:
+		RawBoard board1 = RawBoard.builder().build()
+		RawBoard board2 = RawBoard.builder()
+				.board([0, 3, 2, 0, 10, 10, 3, 8, 0, 0, 9, 9, 1, 17] as int[])
+				.build()
+
+		expect:
+		!board1.isEndOfGame()
+		!board2.isEndOfGame()
+	}
+
+	def "Get score"() {
+		given:
+		RawBoard b1 = RawBoard.builder().build()
+		RawBoard b2 = RawBoard.builder()
+				.currentPlayer(Player.TWO)
+		//      0  1  2  3   4   5  6  7  8  9  0  1  2   3
+				.board([0, 3, 2, 0, 10, 10, 3, 8, 0, 0, 9, 9, 1, 17] as int[])
+				.build()
+
+		when:
+		def result1 = b1.getScore()
+
+		then:
+		result1 != null
+		result1[Player.ONE] == 36
+		result1[Player.TWO] == 36
+
+		when:
+		def result2 = b2.getScore()
+
+		then:
+		result2 != null
+		result2[Player.ONE] == 44
+		result2[Player.TWO] == 28
+	}
 }
