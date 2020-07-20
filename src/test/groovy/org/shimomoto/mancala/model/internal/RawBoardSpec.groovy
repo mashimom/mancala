@@ -1,0 +1,85 @@
+package org.shimomoto.mancala.model.internal
+
+import org.shimomoto.mancala.model.domain.Player
+import spock.lang.Specification
+import spock.lang.Unroll
+
+class RawBoardSpec extends Specification {
+
+	@Unroll
+	def "isLegalMove accepts - #p #b pos:#i"() {
+		given:
+		RawBoard board = RawBoard.builder().currentPlayer(p).board(b).build()
+
+		expect:
+		board.isLegalMove(p, i)
+
+		where:
+		//                0  1  2  3  4  5  6  7  8  9  0  1  2  3
+		_  | p          | b                                                   | i
+		0  | Player.ONE | [1, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 0
+		1  | Player.ONE | [0, 1, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 1
+		2  | Player.ONE | [0, 0, 2, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 2
+		3  | Player.ONE | [0, 0, 0, 3, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 3
+		4  | Player.ONE | [0, 0, 0, 0, 4, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 4
+		5  | Player.ONE | [0, 0, 0, 0, 0, 5, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 5
+		6  | Player.ONE | [9, 0, 0, 0, 0, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 0
+		7  | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 0
+		8  | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 1
+		9  | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 2
+		10 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 3
+		11 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 4
+		12 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 5
+	}
+
+	@Unroll
+	def "isLegalMove rejects - #p #b pos:#i"() {
+		given:
+		RawBoard board = RawBoard.builder().currentPlayer(p).board(b).build()
+
+		expect:
+		!board.isLegalMove(p, i)
+
+		where:
+		//                0  1  2  3  4  5  6  7  8  9  0  1  2  3
+		_  | p          | b                                                   | i
+		0  | Player.ONE | [0, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 0
+		1  | Player.ONE | [1, 0, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 1
+		2  | Player.ONE | [1, 1, 0, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 2
+		3  | Player.ONE | [1, 1, 1, 0, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 3
+		4  | Player.ONE | [1, 1, 1, 1, 0, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 4
+		5  | Player.ONE | [1, 1, 1, 1, 1, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 5
+		6  | Player.ONE | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | -1
+		7  | Player.ONE | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 7
+		8  | Player.TWO | [0, 1, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 0
+		9  | Player.TWO | [1, 0, 1, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 1
+		10 | Player.TWO | [1, 1, 0, 1, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 2
+		11 | Player.TWO | [1, 1, 1, 0, 1, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 3
+		12 | Player.TWO | [1, 1, 1, 1, 0, 1, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 4
+		13 | Player.TWO | [1, 1, 1, 1, 1, 0, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 5
+		14 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | -1
+		15 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 7
+	}
+
+	def "changeTurn swaps player and board position and back"() {
+		given:
+		RawBoard b = RawBoard.builder()
+				.currentPlayer(Player.ONE)
+				.board((0..13).collect() as int[])
+				.build()
+
+		when:
+		b.changeTurn()
+
+		then:
+		b.currentPlayer == Player.TWO
+		b.board == [7, 8, 9, 10, 11, 12, 13, 0, 1, 2, 3, 4, 5, 6] as int[]
+
+		when:
+		b.changeTurn()
+
+		then:
+		b.currentPlayer == Player.ONE
+		b.board == (0..13).collect() as int[]
+	}
+}
