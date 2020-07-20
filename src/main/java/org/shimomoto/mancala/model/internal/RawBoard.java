@@ -5,6 +5,7 @@ import lombok.Data;
 import org.shimomoto.mancala.model.domain.Player;
 
 import java.util.Arrays;
+import java.util.Map;
 
 @Builder(toBuilder = true)
 @Data
@@ -81,5 +82,24 @@ public class RawBoard {
 				spare--;
 			}
 		}
+	}
+
+	public boolean isEndOfGame() {
+		final boolean isFirstRowCleared = Arrays.stream(board)
+				.limit(6)
+				.allMatch(i -> 0 == i);
+		final boolean isSecondRowCleared = Arrays.stream(board)
+				.skip(7)
+				.limit(6)
+				.allMatch(i -> 0 == i);
+		return isFirstRowCleared || isSecondRowCleared;
+	}
+
+	public Map<Player, Integer> getScore() {
+		return Map.of(
+				currentPlayer,
+				Arrays.stream(board).limit(7).sum(),
+				currentPlayer.opponent(),
+				Arrays.stream(board).skip(6).sum());
 	}
 }
