@@ -10,7 +10,7 @@ class MechanicsSpec extends Specification {
 	def "first move mechanics"() {
 		given:
 		int position = 0
-		//             1  2  3  4  5  6  7  8  9  0  1  2  3  4
+		//             0  1  2  3  4  5  6  7  8  9  0  1  2  3
 		int[] board = [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[]
 		int seeds = board[position]
 		int rounds = seeds.intdiv 14
