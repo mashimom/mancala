@@ -129,7 +129,7 @@ class RawBoardSpec extends Specification {
 		when: "@7 - player 2 makes a valid move"
 		b.move(Player.TWO, 5)
 
-		then: "@7 - board changes and player 2 takes turn"
+		then: "@7 - board changes and player 1 takes turn"
 		b.currentPlayer == Player.ONE
 		b.board == [2, 1, 10, 9, 9, 9, 2, 7, 0, 7, 7, 7, 0, 2] as int[]
 
@@ -139,5 +139,12 @@ class RawBoardSpec extends Specification {
 		then: "@8 - board changes and player 2 takes turn"
 		b.currentPlayer == Player.TWO
 		b.board == [8, 1, 8, 8, 8, 1, 2, 2, 1, 0, 10, 10, 10, 3] as int[]
+
+		when: "@9 - player 2 makes a valid move"
+		b.move(Player.TWO, 5)
+
+		then: "@9 - board changes and player 2 has extra turn"
+		b.currentPlayer == Player.TWO
+		b.board == [8, 1, 8, 8, 8, 0, 3, 2, 1, 0, 10, 10, 10, 3] as int[]
 	}
 }
