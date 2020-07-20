@@ -80,4 +80,23 @@ class RawBoardSpec extends Specification {
 		b.currentPlayer == Player.ONE
 		b.board == (0..13).collect() as int[]
 	}
+
+	def "game move"() {
+		given: "starting board"
+		RawBoard b = RawBoard.builder().build()
+
+		when: "@1 - player 1 makes a valid move"
+		b.move(Player.ONE, 0)
+
+		then: "@1 - the board changes and player 1 has extra turn"
+		b.currentPlayer == Player.ONE
+		b.board == [0, 7, 7, 7, 7, 7, 1, 6, 6, 6, 6, 6, 6, 0] as int[]
+
+		when: "@2 - player 2 tries a move ou of turn"
+		b.move(Player.TWO, 0)
+
+		then: "@2 - nothing changes"
+		b.currentPlayer == Player.ONE
+		b.board == [0, 7, 7, 7, 7, 7, 1, 6, 6, 6, 6, 6, 6, 0] as int[]
+	}
 }
