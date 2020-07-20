@@ -32,6 +32,9 @@ public class RawBoard {
 	}
 
 	public void move(Player player, int position) {
+		if(!isLegalMove(player,position)) {
+			return;
+		}
 		//holds the pieces for position
 		int holden = board[position];
 
