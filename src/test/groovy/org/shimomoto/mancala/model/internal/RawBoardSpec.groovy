@@ -105,5 +105,12 @@ class RawBoardSpec extends Specification {
 		then: "@3 - board changes and player 2 takes turn"
 		b.currentPlayer == Player.TWO
 		b.board == [7, 7, 6, 6, 6, 6, 0, 0, 0, 8, 8, 8, 8, 2] as int[]
+
+		when: "@4 - player 2 makes invalid move"
+		b.move(Player.TWO, 7)
+4
+		then: "@4 - nothing changes"
+		b.currentPlayer == Player.TWO
+		b.board == [7, 7, 6, 6, 6, 6, 0, 0, 0, 8, 8, 8, 8, 2] as int[]
 	}
 }
