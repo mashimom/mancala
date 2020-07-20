@@ -92,7 +92,7 @@ class RawBoardSpec extends Specification {
 		b.currentPlayer == Player.ONE
 		b.board == [0, 7, 7, 7, 7, 7, 1, 6, 6, 6, 6, 6, 6, 0] as int[]
 
-		when: "@2 - player 2 tries a move ou of turn"
+		when: "@2 - player 2 tries a move out of turn"
 		b.move(Player.TWO, 0)
 
 		then: "@2 - nothing changes"
