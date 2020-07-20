@@ -6,8 +6,7 @@ import spock.lang.Unroll
 
 class RawBoardSpec extends Specification {
 
-	@Unroll
-	def "isLegalMove accepts - #p #b pos:#i"() {
+	def "isLegalMove accepts"() {
 		given:
 		RawBoard board = RawBoard.builder().currentPlayer(p).board(b).build()
 
@@ -32,8 +31,7 @@ class RawBoardSpec extends Specification {
 		12 | Player.TWO | [6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0] as int[] | 5
 	}
 
-	@Unroll
-	def "isLegalMove rejects - #p #b pos:#i"() {
+	def "isLegalMove rejects"() {
 		given:
 		RawBoard board = RawBoard.builder().currentPlayer(p).board(b).build()
 
