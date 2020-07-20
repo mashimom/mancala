@@ -2,7 +2,6 @@ package org.shimomoto.mancala.model.internal
 
 import org.shimomoto.mancala.model.domain.Player
 import spock.lang.Specification
-import spock.lang.Unroll
 
 class RawBoardSpec extends Specification {
 
@@ -126,5 +125,12 @@ class RawBoardSpec extends Specification {
 		then: "@6 - board changes and player 2 takes turn"
 		b.currentPlayer == Player.TWO
 		b.board == [7, 0, 7, 7, 7, 7, 1, 1, 0, 9, 8, 8, 8, 2] as int[]
+
+		when: "@7 - player 2 makes a valid move"
+		b.move(Player.TWO, 5)
+
+		then: "@7 - board changes and player 2 takes turn"
+		b.currentPlayer == Player.ONE
+		b.board == [2, 1, 10, 9, 9, 9, 2, 7, 0, 7, 7, 7, 0, 2] as int[]
 	}
 }
