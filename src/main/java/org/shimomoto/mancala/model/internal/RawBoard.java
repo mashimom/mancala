@@ -40,16 +40,20 @@ public class RawBoard {
 
 		//calculates intermediate values
 		int rounds = holden / 14;
-		int extra = holden % 14;
+		int spare = holden % 14;
+		int endsAt = spare + position;
 
 		//makes changes
 		board[position] = 0;
 		for (int i = 0; i < board.length; i++) {
 			board[i] += rounds;
-			if (extra > 0 && i > position) {
+			if (spare > 0 && i > position) {
 				board[i]++;
-				extra--;
+				spare--;
 			}
+		}
+		if(endsAt != 6) {
+			changeTurn();
 		}
 	}
 }
