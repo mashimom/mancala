@@ -100,6 +100,6 @@ public class RawBoard {
 				currentPlayer,
 				Arrays.stream(board).limit(7).sum(),
 				currentPlayer.opponent(),
-				Arrays.stream(board).skip(6).sum());
+				Arrays.stream(board).skip(7).sum());
 	}
 }
