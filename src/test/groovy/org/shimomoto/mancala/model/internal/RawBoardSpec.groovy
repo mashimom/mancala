@@ -213,11 +213,14 @@ class RawBoardSpec extends Specification {
 
 	def "Get score"() {
 		given:
-		RawBoard b1 = RawBoard.builder().build()
-		RawBoard b2 = RawBoard.builder()
+		RawBoard b1 = RawBoard.builder()
 				.currentPlayer(Player.TWO)
-		//      0  1  2  3   4   5  6  7  8  9  0  1  2   3
-				.board([0, 3, 2, 0, 10, 10, 3, 8, 0, 0, 9, 9, 1, 17] as int[])
+				.board((1..14).collect() as int[])
+				.build()
+		RawBoard b2 = RawBoard.builder()
+				.currentPlayer(Player.ONE)
+		//      0  1  2  3  4   5  6  7  8  9  0  1  2   3
+				.board([1, 3, 2, 1, 8, 10, 3, 8, 3, 2, 9, 9, 1, 12] as int[])
 				.build()
 
 		when:
@@ -225,15 +228,15 @@ class RawBoardSpec extends Specification {
 
 		then:
 		result1 != null
-		result1[Player.ONE] == 36
-		result1[Player.TWO] == 36
+		result1[Player.ONE] == 77
+		result1[Player.TWO] == 28
 
 		when:
 		def result2 = b2.getScore()
 
 		then:
 		result2 != null
-		result2[Player.ONE] == 44
-		result2[Player.TWO] == 28
+		result2[Player.ONE] == 28
+		result2[Player.TWO] == 44
 	}
 }
