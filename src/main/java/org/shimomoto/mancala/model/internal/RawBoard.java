@@ -1,11 +1,13 @@
 package org.shimomoto.mancala.model.internal;
 
+import com.codepoetics.protonpack.maps.MapStream;
 import lombok.Builder;
 import lombok.Data;
 import org.shimomoto.mancala.model.domain.Player;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 @Builder(toBuilder = true)
 @Data
@@ -101,5 +103,14 @@ public class RawBoard {
 				Arrays.stream(board).limit(7).sum(),
 				currentPlayer.opponent(),
 				Arrays.stream(board).skip(7).sum());
+	}
+
+	public Optional<Player> getWinner() {
+		if (!isEndOfGame()) {
+			return Optional.empty();
+		}
+		return MapStream.of(this.getScore())
+				.max(Map.Entry.comparingByValue())
+				.map(Map.Entry::getKey);
 	}
 }
