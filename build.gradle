@@ -17,6 +17,7 @@ apply plugin: 'nebula.facet'
 
 //noinspection GroovyUnusedAssignment
 group = 'org.shimomoto'
+//noinspection GroovyAssignabilityCheck
 version gitVersion()
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = JavaVersion.VERSION_14
@@ -25,6 +26,7 @@ targetCompatibility = JavaVersion.VERSION_14
 facets {
 	integrationTest {
 		parentSourceSet = 'test'
+		//noinspection GroovyAssignabilityCheck
 		testTaskName = 'integrationTest'
 	}
 }
