@@ -36,14 +36,23 @@ public class Game {
 	@Getter(AccessLevel.NONE)
 	@Setter(AccessLevel.NONE)
 	@Transient
-	RawBoard board; //TODO: figure out persistence later
-	LocalDateTime gameStart;
+	RawBoard board = RawBoard.builder().build(); //TODO: figure out persistence later
+	@Builder.Default
+	LocalDateTime gameStart = LocalDateTime.now();
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
-	Map<Player, String> playerNames;
+	@Builder.Default
+	Map<Player, String> playerNames = Map.of(
+			Player.ONE, "Player 1",
+			Player.TWO, "Player 2"
+	);
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
-	Map<Player, Integer> winsByPlayer;
+	@Builder.Default
+	Map<Player, Integer> winsByPlayer = Map.of(
+			Player.ONE, 0,
+			Player.TWO, 0
+	);
 
 	public boolean isFinished() {
 		return board.isEndOfGame();
@@ -58,5 +67,4 @@ public class Game {
 	public void move(final Player player, final int position) {
 		board.move(player, position);
 	}
-
 }
