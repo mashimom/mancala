@@ -40,14 +40,9 @@ class GameService {
 
 	public Game newGame(@NotNull final String player1Name, @NotNull final String player2Name) {
 		return Game.builder()
-				.board(RawBoard.builder().build())
-				.gameStart(LocalDateTime.now())
 				.playerNames(Map.of(
 						Player.ONE, player1Name,
 						Player.TWO, player2Name))
-				.winsByPlayer(Map.of(
-						Player.ONE, 0,
-						Player.TWO, 0))
 				.build();
 	}
 
@@ -78,5 +73,9 @@ class GameService {
 
 	public void move(final @NotNull Game game, @NotNull final Player player, final int position) {
 		game.move(player, position);
+	}
+
+	public boolean isFinished(@NotNull final Game game) {
+		return game.isFinished();
 	}
 }
