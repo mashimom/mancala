@@ -31,10 +31,12 @@ public class GameFacade {
 
 	private GameService service;
 
+	@NotNull
 	public Stream<Game> getAll() {
 		return StreamUtils.stream(service.getAll());
 	}
 
+	@NotNull
 	public Game createGame(final @Nullable String player1, final @Nullable String player2) {
 		final String player1Name = Optional.ofNullable(player1)
 				.orElse("Player 1");
@@ -44,10 +46,12 @@ public class GameFacade {
 		return service.newGame(player1Name, player2Name);
 	}
 
+	@NotNull
 	public Game createRematch(final String id) {
 		return service.createRematch(getGameById(id));
 	}
 
+	@NotNull
 	public Game getGameById(final @Nullable String id) {
 		return service.getGame(id)
 				.orElseThrow(() ->
