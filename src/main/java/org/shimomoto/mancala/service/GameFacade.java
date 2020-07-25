@@ -58,7 +58,7 @@ public class GameFacade {
 	public Game move(final String id, final @NotNull Player player, final Integer position) {
 		final Game game = getGameById(id);
 
-		if (game.isFinished()) {
+		if (service.isFinished(game)) {
 			throw new UnsupportedOperationException("The game has ended and all moves are illegal.");
 		}
 		service.move(game, player, position);
