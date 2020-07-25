@@ -98,11 +98,12 @@ public class RawBoard {
 	}
 
 	public Map<Player, Integer> getScore() {
-		return Map.of(
+		return MapStream.of(
 				currentPlayer,
 				Arrays.stream(board).limit(7).sum(),
 				currentPlayer.opponent(),
-				Arrays.stream(board).skip(7).sum());
+				Arrays.stream(board).skip(7).sum())
+				.collect();
 	}
 
 	public Optional<Player> getWinner() {
