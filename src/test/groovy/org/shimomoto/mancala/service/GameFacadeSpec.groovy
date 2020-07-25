@@ -1,6 +1,7 @@
 package org.shimomoto.mancala.service
 
 import org.shimomoto.mancala.model.domain.Player
+import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
 import spock.lang.Specification
 import spock.lang.Subject
@@ -9,8 +10,9 @@ import javax.persistence.EntityNotFoundException
 
 class GameFacadeSpec extends Specification {
 	GameService service = Mock(GameService)
+	BoardService boardService = Mock(BoardService)
 	@Subject
-	GameFacade facade = new GameFacade(service)
+	GameFacade facade = new GameFacade(service, boardService)
 
 	def "getAll works when empty"() {
 		when:
@@ -36,18 +38,24 @@ class GameFacadeSpec extends Specification {
 	}
 
 	def "createGame works without names"() {
+		given:
+		def g = Game.builder().build()
+
 		when:
 		def result = facade.createGame(null, null)
 
 		then:
 		result != null
 		and: 'interactions'
-		1 * service.newGame('Player 1', 'Player 2') >> Game.builder().build()
+
+		1 * service.newGame('Player 1', 'Player 2') >> g
+		1 * service.save(g)
 		0 * _
 	}
 
 	def "createGame works with names"() {
 		given:
+		def g = Game.builder().build()
 		def p1 = 'p1'
 		def p2 = 'p2'
 
@@ -58,23 +66,33 @@ class GameFacadeSpec extends Specification {
 		result != null
 
 		and: 'interactions'
-		1 * service.newGame('p1', 'p2') >> Game.builder().build()
+		1 * service.newGame('p1', 'p2') >> g
+		1 * service.save(g)
 		0 * _
 	}
 
 	def "createRematch works"() {
 		given:
-		Game g1 = Game.builder().build()
-		Game g2 = Game.builder().build()
+		Game g = Mock(Game)
+		Board b = Mock(Board)
+		def oldScore = [(Player.ONE): 1, (Player.TWO): 3]
+		def newScore = [(Player.ONE): 2, (Player.TWO): 3]
+
+		def nameByPlayer = [(Player.ONE): 'Kirk', (Player.TWO): 'Spock']
+		Game r = Mock(Game)
+
 		when:
 		def result = facade.createRematch('someid')
 
 		then:
 		result != null
-		result == g2
+		result == r
 		and: 'interactions'
-		1 * service.getGame('someid') >> Optional.of(g1)
-		1 * service.createRematch(g1) >> g2
+		1 * service.getGame('someid') >> Optional.of(g)
+		1 * g.board >> b
+		1 * boardService.isEndOfGame(b) >> true
+		1 * service.createRematch(g) >> r
+		1 * service.save(r)
 		0 * _
 	}
 
@@ -121,8 +139,38 @@ class GameFacadeSpec extends Specification {
 		result == g
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		1 * service.isFinished(g) >> false
-		1 * service.move(g, Player.TWO, 4i)
+		2 * boardService.isEndOfGame(_) >> false
+		1 * boardService.move(_, Player.TWO, 4i)
+		1 * service.save(g)
+		0 * _
+	}
+
+	def "move works at end of game"() {
+		given:
+		Board board = Board.builder()
+				.turnCount(23)
+				.currentPlayer(Player.ONE)
+				.pits([0, 0, 0, 0, 0, 7, 21, 3, 2, 3, 13, 0, 0, 15] as int[])
+				.build()
+		Game game = Game.builder()
+				.board(board)
+				.build()
+		when:
+		def result = facade.move('someid', Player.ONE, 5i)
+
+		then:
+		result == game
+
+		and: 'interactions'
+		1 * service.getGame('someid') >> Optional.of(game)
+		1 * boardService.isEndOfGame(board) >> false
+		1 * boardService.move(board, Player.ONE, 5i)
+		1 * boardService.isEndOfGame(board) >> true
+		1 * boardService.endGameMove(board)
+		1 * boardService.findWinner(board) >> Optional.of(Player.ONE)
+		1 * service.increaseScore(game, Player.ONE) >> { it }
+		1 * service.setEndOfGame(game)
+		1 * service.save(game)
 		0 * _
 	}
 
@@ -136,7 +184,7 @@ class GameFacadeSpec extends Specification {
 		thrown UnsupportedOperationException
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		1 * service.isFinished(g) >> true
+		1 * boardService.isEndOfGame(_) >> true
 		0 * _
 	}
 
