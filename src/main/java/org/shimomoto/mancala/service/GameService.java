@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.Player;
 import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.model.internal.RawBoard;
+import org.shimomoto.mancala.model.util.PublicId;
 import org.shimomoto.mancala.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ class GameService {
 
 	public Optional<Game> getGame(@Nullable final String id) {
 		return Optional.ofNullable(id)
-				.filter(s -> !toString().isBlank())
+				.filter(s -> !s.isBlank())
 				.flatMap(repo::findById);
 	}
 
@@ -47,10 +48,14 @@ class GameService {
 	}
 
 	public Game createRematch(final Game previousGame) {
+		if (!isFinished(previousGame)) { //TODO: consider moving check to facade or return optonal to keep service safe
+			throw new UnsupportedOperationException("match has not ended");
+		}
 		final Map<Player, Integer> newScore =
 				getUpdatedScore(previousGame);
 
 		return previousGame.toBuilder()
+				.id(PublicId.generate())
 				.board(RawBoard.builder().build())
 				.gameStart(LocalDateTime.now())
 				.playerNames(previousGame.getPlayerNames())
