@@ -12,6 +12,6 @@ spring:
       name: marco
       password: polo
 #      role:
-    ignored: /**
-    basic:
-      enable: false
+#    ignored: /**
+#    basic:
+#      enable: true
