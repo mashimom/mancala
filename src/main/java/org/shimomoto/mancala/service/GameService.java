@@ -1,5 +1,6 @@
 package org.shimomoto.mancala.service;
 
+import com.codepoetics.protonpack.maps.MapStream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -7,13 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.Player;
 import org.shimomoto.mancala.model.entity.Game;
-import org.shimomoto.mancala.model.internal.RawBoard;
-import org.shimomoto.mancala.model.util.PublicId;
 import org.shimomoto.mancala.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +27,23 @@ class GameService {
 	@Autowired
 	GameRepository repo;
 
+	public Game newGame(@NotNull final String player1Name, @NotNull final String player2Name) {
+		return Game.builder()
+				.playerNames(MapStream.of(
+						Player.ONE, player1Name,
+						Player.TWO, player2Name)
+						.collect())
+				.build();
+	}
+
+	@NotNull
+	public Game createRematch(@NotNull final Game finishedGame) {
+		return Game.builder()
+				.playerNames(finishedGame.getPlayerNames())
+				.winsByPlayer(finishedGame.getWinsByPlayer())
+				.build();
+	}
+
 	public Iterable<Game> getAll() {
 		return repo.findAll();
 	}
@@ -39,48 +54,40 @@ class GameService {
 				.flatMap(repo::findById);
 	}
 
-	public Game newGame(@NotNull final String player1Name, @NotNull final String player2Name) {
-		return Game.builder()
-				.playerNames(Map.of(
-						Player.ONE, player1Name,
-						Player.TWO, player2Name))
-				.build();
+	public void setEndOfGame(final Game game) {
+		game.setEndOfGame(true);
 	}
 
-	public Game createRematch(final Game previousGame) {
-		if (!isFinished(previousGame)) { //TODO: consider moving check to facade or return optonal to keep service safe
-			throw new UnsupportedOperationException("match has not ended");
+	public void increaseScore(final Game game, @Nullable final Player winner) {
+		if (winner != null) {
+			setWinnerScore(game, winner);
+		} else {
+			setDrawScore(game);
 		}
-		final Map<Player, Integer> newScore =
-				getUpdatedScore(previousGame);
-
-		return previousGame.toBuilder()
-				.id(PublicId.generate())
-				.board(RawBoard.builder().build())
-				.gameStart(LocalDateTime.now())
-				.playerNames(previousGame.getPlayerNames())
-				.winsByPlayer(newScore)
-				.build();
 	}
 
-	public Map<Player, Integer> getUpdatedScore(@NotNull final Game previousGame) {
-
-		final Optional<Player> winner = previousGame.getWinner();
-
-		if (winner.isEmpty()) {
-			return previousGame.getWinsByPlayer();
-		}
-
-		return Map.of(
-				winner.get(), previousGame.getWinsByPlayer().get(winner.get()) + 1,
-				winner.get().opponent(), previousGame.getWinsByPlayer().get(winner.get().opponent()));
+	private void setDrawScore(final Game game) {
+		final Map<Player, Integer> oldScore = game.getWinsByPlayer();
+		final Map<Player, Integer> updatedScore =
+				MapStream.of(
+						Player.ONE, oldScore.get(Player.ONE) + 1,
+						Player.TWO, oldScore.get(Player.TWO) + 1)
+						.collect();
+		game.setWinsByPlayer(updatedScore);
 	}
 
-	public void move(final @NotNull Game game, @NotNull final Player player, final int position) {
-		game.move(player, position);
+	private void setWinnerScore(final Game game, final Player winner) {
+		final Map<Player, Integer> oldScore = game.getWinsByPlayer();
+		final Player looser = winner.opponent();
+		final Map<Player, Integer> updatedScore =
+				MapStream.of(
+						winner, oldScore.get(winner) + 1,
+						looser, oldScore.get(looser))
+						.collect();
+		game.setWinsByPlayer(updatedScore);
 	}
 
-	public boolean isFinished(@NotNull final Game game) {
-		return game.isFinished();
+	public void save(@NotNull final Game game) {
+		repo.save(game);
 	}
 }

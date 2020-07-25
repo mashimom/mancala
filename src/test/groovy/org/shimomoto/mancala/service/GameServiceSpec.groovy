@@ -1,13 +1,11 @@
 package org.shimomoto.mancala.service
 
 import org.shimomoto.mancala.model.domain.Player
+import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
-import org.shimomoto.mancala.model.internal.RawBoard
 import org.shimomoto.mancala.repository.GameRepository
 import spock.lang.Specification
 import spock.lang.Subject
-
-import java.time.LocalDateTime
 
 class GameServiceSpec extends Specification {
 	GameRepository repo = Mock(GameRepository)
@@ -108,101 +106,25 @@ class GameServiceSpec extends Specification {
 		thrown NullPointerException
 	}
 
-	def "getUpdatedScore works"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		def result = service.getUpdatedScore(g)
-
-		then:
-		result != null
-		result == [(Player.ONE): 2, (Player.TWO): 3]
-		and: 'interactions'
-		1 * g.getWinner() >> Optional.of(Player.ONE)
-		2 * g.winsByPlayer >> [(Player.ONE): 1, (Player.TWO): 3]
-		0 * _
-	}
-
-	def "getUpdatedScore on unfinished game"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		def result = service.getUpdatedScore(g)
-
-		then:
-		result != null
-		result == [(Player.ONE): 1, (Player.TWO): 3]
-		and: 'interactions'
-		1 * g.getWinner() >> Optional.empty()
-		1 * g.winsByPlayer >> [(Player.ONE): 1, (Player.TWO): 3]
-		0 * _
-	}
-
 	def "createRematch works"() {
 		given:
-		def now = LocalDateTime.now()
-		def theBoard = RawBoard.builder()
-				.currentPlayer(Player.TWO)
-				.turnCount(15)
-				.board([0, 2, 3, 0, 0, 1, 28, 0, 0, 0, 0, 0, 0, 38] as int[])
-				.build()
-		Game theGame = Game.builder()
-				.id('originalid')
-				.board(theBoard)
-				.gameStart(LocalDateTime.of(2020, 2, 15, 14, 38))
-				.playerNames([(Player.ONE): 'Kirk', (Player.TWO): 'Spock'])
-				.winsByPlayer([(Player.ONE): 77, (Player.TWO): 212])
-				.build()
+		Game g = Mock(Game)
+		def playerNames = [(Player.ONE): 'Kirk', (Player.TWO): 'Spock']
+		def gameScore = [(Player.ONE): 77, (Player.TWO): 212]
 
 		when:
-		def result = service.createRematch(theGame)
+		def result = service.createRematch(g)
 
 		then:
 		result != null
 		with(result) {
-			id != theGame.id
-			result.@board != theGame.@board
-			result.@board == RawBoard.builder().build()
-			gameStart != theGame.gameStart
-			gameStart > now
-			playerNames == theGame.playerNames
-			winsByPlayer == [(Player.ONE): 78, (Player.TWO): 212]
+			board == Board.builder().build()
+			!endOfGame
+			playerNames == playerNames
+			winsByPlayer == gameScore
 		}
-	}
-
-	def "createRematch fails"() {
-		given:
-		def theBoard = RawBoard.builder()
-				.currentPlayer(Player.TWO)
-				.turnCount(15)
-				.board([0, 2, 3, 3, 0, 1, 28, 0, 0, 1, 0, 0, 0, 34] as int[])
-				.build()
-		Game theGame = Game.builder()
-				.id('originalid')
-				.board(theBoard)
-				.gameStart(LocalDateTime.of(2020, 2, 15, 14, 38))
-				.playerNames([(Player.ONE): 'Kirk', (Player.TWO): 'Spock'])
-				.winsByPlayer([(Player.ONE): 77, (Player.TWO): 212])
-				.build()
-
-		when:
-		service.createRematch(theGame)
-
-		then:
-		thrown UnsupportedOperationException
-	}
-
-	def "move works"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		service.move(g, Player.TWO, 3)
-
-		then: 'interactions'
-		1 * g.move(Player.TWO, 3)
-		0 * _
+		and: 'interactions'
+		1 * g.playerNames >> playerNames
+		1 * g.winsByPlayer >> [(Player.ONE): 77, (Player.TWO): 212]
 	}
 }
