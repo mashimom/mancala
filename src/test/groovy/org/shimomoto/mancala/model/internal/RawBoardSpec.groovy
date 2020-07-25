@@ -239,4 +239,32 @@ class RawBoardSpec extends Specification {
 		result2[Player.ONE] == 28
 		result2[Player.TWO] == 44
 	}
+
+	def "getWinner works when game has ended"() {
+		given:
+		RawBoard board = RawBoard.builder()
+				.currentPlayer(Player.TWO)
+				.board([0, 0, 0, 0, 0, 0, 30, 1, 2, 3, 4, 5, 6, 7] as int[])
+				.build()
+
+		when:
+		def result = board.getWinner()
+
+		then:
+		result.isPresent()
+		result.get() == Player.TWO
+	}
+
+	def "getWinner is empty when game has NOT ended"() {
+		given:
+		RawBoard board = RawBoard.builder()
+				.currentPlayer(Player.TWO)
+				.build()
+
+		when:
+		def result = board.getWinner()
+
+		then:
+		result.isEmpty()
+	}
 }
