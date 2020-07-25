@@ -63,7 +63,8 @@ public class GameController {
 
 	@Operation(summary = "Start a new game")
 	@PostMapping("/")
-	public Game startGame(@Nullable @RequestParam final String player1, @Nullable @RequestParam final String player2) {
+	public Game startGame(@Nullable @Parameter(description = "Player 1 display name") @RequestParam(defaultValue = "Player 1") final String player1,
+	                      @Nullable @Parameter(description = "Player 2 display name") @RequestParam(defaultValue = "Player 2") final String player2) {
 		return facade.createGame(player1, player2);
 	}
 
@@ -73,7 +74,9 @@ public class GameController {
 	}
 
 	@PostMapping("/{id}/move")
-	public Game move(@PathVariable final String id, @NotNull @RequestParam final Player player, final int position) {
+	public Game move(@Parameter(description = "Public id for game") @PathVariable final String id,
+	                 @Parameter(description = "Player that will make a move") @NotNull @RequestParam final Player player,
+	                 @Parameter(description = "Position that refers to movement") @RequestParam final int position) {
 		try {
 			return facade.move(id, player, position);
 		} catch (final UnsupportedOperationException e) {
