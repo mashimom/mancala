@@ -127,4 +127,59 @@ class GameServiceSpec extends Specification {
 		1 * g.playerNames >> playerNames
 		1 * g.winsByPlayer >> [(Player.ONE): 77, (Player.TWO): 212]
 	}
+
+	def "increaseScore works"() {
+		given:
+		Game g = Game.builder()
+				.winsByPlayer([(Player.ONE): 0, (Player.TWO): 0])
+				.build()
+
+		when:
+		service.increaseScore(g, Player.ONE)
+
+		then:
+		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 0]
+
+		when:
+		service.increaseScore(g, Player.TWO)
+
+		then:
+		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 1]
+
+		when:
+		service.increaseScore(g, Player.TWO)
+
+		then:
+		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 2]
+
+		when:
+		service.increaseScore(g, null)
+
+		then:
+		g.winsByPlayer == [(Player.ONE): 2, (Player.TWO): 3]
+	}
+
+	def "setEndOfGame works"() {
+		given:
+		Game g = Game.builder()
+				.endOfGame(false)
+				.build()
+
+		when:
+		service.setEndOfGame(g)
+
+		then:
+		g.endOfGame
+	}
+
+	def "save works"() {
+		given:
+		Game g = Mock(Game)
+
+		when:
+		service.save(g)
+
+		then:
+		repo.save(g) >> g
+	}
 }
