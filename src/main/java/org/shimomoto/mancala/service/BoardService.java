@@ -23,8 +23,8 @@ public class BoardService {
 		return endsAt != 6;
 	}
 
-	private static boolean isCapture(final int endsAt, final int[] board) {
-		return endsAt >= 0 && endsAt < 6 && board[endsAt] == 1;
+	private static boolean isCapture(final int endsAt, final int[] pits) {
+		return endsAt >= 0 && endsAt < 6 && pits[endsAt] == 1;
 	}
 
 	public Board newBoard() {
