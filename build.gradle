@@ -1,6 +1,7 @@
 plugins {
 	id 'build-dashboard'
 	id 'com.google.cloud.tools.jib' version '2.4.0'
+	id 'com.gorylenko.gradle-git-properties' version '2.2.2'
 	id 'com.palantir.git-version' version '0.12.2'
 	id 'groovy'
 	id 'idea'
@@ -23,6 +24,10 @@ version gitVersion()
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = JavaVersion.VERSION_14
 targetCompatibility = JavaVersion.VERSION_14
+
+springBoot {
+	buildInfo()
+}
 
 facets {
 	integrationTest {

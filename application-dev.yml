@@ -15,3 +15,17 @@ spring:
 #    ignored: /**
 #    basic:
 #      enable: true
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#    enabled-by-default: true
+#  endpoint:
+#    env:
+#      enabled: true
+#    configprops:
+#      enabled: true
+#    info:
+#      enabled: true
+
