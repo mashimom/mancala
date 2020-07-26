@@ -36,6 +36,7 @@ public class GameController {
 	@Autowired
 	GameFacade facade;
 
+	@SuppressWarnings("SameReturnValue")
 	@Operation(summary = "SimpleTest")
 	@GetMapping("/greeting")
 	@ResponseStatus(HttpStatus.I_AM_A_TEAPOT)

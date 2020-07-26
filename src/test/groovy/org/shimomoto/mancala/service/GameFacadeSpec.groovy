@@ -75,10 +75,6 @@ class GameFacadeSpec extends Specification {
 		given:
 		Game g = Mock(Game)
 		Board b = Mock(Board)
-		def oldScore = [(Player.ONE): 1, (Player.TWO): 3]
-		def newScore = [(Player.ONE): 2, (Player.TWO): 3]
-
-		def nameByPlayer = [(Player.ONE): 'Kirk', (Player.TWO): 'Spock']
 		Game r = Mock(Game)
 
 		when:
@@ -98,7 +94,7 @@ class GameFacadeSpec extends Specification {
 
 	def "createRematch fails"() {
 		when:
-		def result = facade.createRematch('unknownid')
+		facade.createRematch('unknownid')
 
 		then:
 		thrown EntityNotFoundException
