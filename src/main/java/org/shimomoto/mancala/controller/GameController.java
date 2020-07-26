@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.Player;
 import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.service.GameFacade;
@@ -58,24 +57,26 @@ public class GameController {
 			@ApiResponse(responseCode = "404", description = "Game not found",
 					content = @Content)})
 	@GetMapping("/{id}")
-	public Game fetch(@Parameter(description = "Public id") @PathVariable final String id) {
+	public Game fetch(@Parameter(description = "Game id") @PathVariable final String id) {
 		return facade.getGameById(id);
 	}
 
 	@Operation(summary = "Start a new game")
 	@PostMapping("/")
-	public Game startGame(@Nullable @Parameter(description = "Player 1 display name") @RequestParam(defaultValue = "Player 1") final String player1,
-	                      @Nullable @Parameter(description = "Player 2 display name") @RequestParam(defaultValue = "Player 2") final String player2) {
+	public Game startGame(@Parameter(description = "Player 1 display name") @RequestParam(defaultValue = "Player 1") final String player1,
+	                      @Parameter(description = "Player 2 display name") @RequestParam(defaultValue = "Player 2") final String player2) {
 		return facade.createGame(player1, player2);
 	}
 
+	@Operation(summary = "Start a new game keeping players names and score")
 	@PostMapping("/{id}/rematch")
-	public Game rematch(@PathVariable final String id) {
+	public Game rematch(@Parameter(description = "Game id") @PathVariable final String id) {
 		return facade.createRematch(id);
 	}
 
+	@Operation(summary = "Make a move, invalid moves have no effect")
 	@PostMapping("/{id}/move")
-	public Game move(@Parameter(description = "Public id for game") @PathVariable final String id,
+	public Game move(@Parameter(description = "Game id") @PathVariable final String id,
 	                 @Parameter(description = "Player that will make a move") @NotNull @RequestParam final Player player,
 	                 @Parameter(description = "Position that refers to movement") @RequestParam final int position) {
 		try {

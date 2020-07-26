@@ -1,7 +1,10 @@
 package org.shimomoto.mancala.controller
 
+import org.shimomoto.mancala.model.domain.Player
 import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.service.GameFacade
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -15,30 +18,36 @@ class GameControllerSpec extends Specification {
 	GameController controller = new GameController(facade)
 
 	def "greeting"() {
-		expect:
+		expect: 'message to be correct'
 		controller.greeting() == 'Greetings, just to check backend responds.'
 	}
 
 	def "list works"() {
-		given:
+		given: '3 games'
 		def games = [Game.builder().build(), Game.builder().build(), Game.builder().build()]
 
-		when:
-		controller.list().collect(Collectors.toList()) != games
+		when: 'listing the stream'
+		def result = controller.list().collect(Collectors.toList())
 
-		then: 'interactions'
-		facade.getAll() >> games.stream()
+		then: 'result is 3 games'
+		result == games
+		and: 'interactions'
+		1 * facade.getAll() >> games.stream()
+		0 * _
 	}
 
 	def "fetch works for good id"() {
-		given:
+		given: 'a game mock'
 		Game g = Mock(Game)
 
-		when:
-		controller.fetch('someid') == g
+		when: 'fetching by valid id'
+		def result = controller.fetch('someid')
 
-		then: 'interactions'
-		facade.getGameById('someid') >> g
+		then:
+		result == g
+		and: 'interactions'
+		1 * facade.getGameById('someid') >> g
+		0 * _
 	}
 
 	def "fetch fails for null id"() {
@@ -48,7 +57,8 @@ class GameControllerSpec extends Specification {
 		then:
 		thrown EntityNotFoundException
 		and: 'interactions'
-		facade.getGameById(null) >> { throw new EntityNotFoundException("msg") }
+		1 * facade.getGameById(null) >> { throw new EntityNotFoundException("msg") }
+		0 * _
 	}
 
 	def "fetch fails for bad id"() {
@@ -58,12 +68,101 @@ class GameControllerSpec extends Specification {
 		then:
 		thrown EntityNotFoundException
 		and: 'interactions'
-		facade.getGameById('illegalid') >> { throw new EntityNotFoundException("msg") }
+		1 * facade.getGameById('illegalid') >> { throw new EntityNotFoundException("msg") }
+		0 * _
 	}
 
-	def "startGame works"() {
+	def "startGame works with player names"() {
 		given:
 		Game g = Mock(Game)
 
+		when:
+		def result = controller.startGame('kirk', 'spock')
+
+		then:
+		result == g
+		and: 'interactions'
+		1 * facade.createGame('kirk', 'spock') >> g
+		0 * _
+	}
+
+	def "startGame works without player names - INVALID due to default values"() {
+		given:
+		Game g = Mock(Game)
+
+		when:
+		def result = controller.startGame(null, null)
+
+		then:
+		result == g
+		and: 'interactions'
+		1 * facade.createGame(null, null) >> g
+		0 * _
+	}
+
+	def "startGame works with single player name - INVALID due to default values"() {
+		given:
+		Game g = Mock(Game)
+
+		when:
+		def result = controller.startGame('mccoy', null)
+
+		then:
+		result == g
+		and: 'interactions'
+		1 * facade.createGame('mccoy', null) >> g
+		0 * _
+	}
+
+	def "rematch works"() {
+		given:
+		Game g = Mock(Game)
+
+		when:
+		def result = controller.rematch('someid')
+
+		then:
+		result == g
+		and: 'interactions'
+		1 * facade.createRematch('someid') >> g
+		0 * _
+	}
+
+	def "rematch fails on invalid id - LITTLE value"() {
+		when:
+		controller.rematch('bogus')
+
+		then:
+		thrown EntityNotFoundException
+		and: 'interactions'
+		1 * facade.createRematch('bogus') >> { throw new EntityNotFoundException("facade thrown") }
+		0 * _
+	}
+
+	def "move works"() {
+		given:
+		Game g = Mock(Game)
+
+		when:
+		def result = controller.move('someid', Player.ONE, 1)
+
+		then:
+		result != null
+		result == g
+		and: 'interactions'
+		1 * facade.move('someid', Player.ONE, 1) >> g
+		0 * _
+	}
+
+	def "move fails for finished game"() {
+		when: 'controller is called for a finished game'
+		controller.move('someid', Player.ONE, 1)
+
+		then: ''
+		ResponseStatusException e = thrown()
+		e.status == HttpStatus.NOT_ACCEPTABLE
+		and: 'interactions'
+		1 * facade.move('someid', Player.ONE, 1) >> { throw new UnsupportedOperationException("facade thrown") }
+		0 * _
 	}
 }
