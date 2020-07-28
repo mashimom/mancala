@@ -2,6 +2,8 @@
 
 The task [assignment](./TechAssignment_2020.pdf)
 
+![Java CI with Gradle](https://github.com/mashimom/mancala/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)
+
 ## The plan
 
 * [x] setup project properly from spring initialzr and testing layer perspective
