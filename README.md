@@ -1,6 +1,6 @@
-# Mancala for bol.com assignment 
+# Mancala assignment 
 
-The task [assignment](./TechAssignment_2020.pdf)
+The task [assignment](./Coding_Challenge.pdf)
 
 ![Java CI with Gradle](https://github.com/mashimom/mancala/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)
 
