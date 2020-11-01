@@ -3,6 +3,8 @@ package org.shimomoto.mancala.controller
 
 import org.shimomoto.mancala.model.transfer.UserDto
 import org.shimomoto.mancala.service.UserFacade
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -41,6 +43,39 @@ class PlayerControllerSpec extends Specification {
 		thrown EntityNotFoundException
 		and: 'interactions'
 		1 * facade.getPlayer(_) >> Optional.empty()
+		0 * _
+	}
+
+	def "player goes to wait room"() {
+		when:
+		controller.waitRoom(pid)
+
+		then:
+		notThrown ResponseStatusException
+		and: 'interactions'
+		1 * facade.waitRoom(pid) >> true
+		0 * _
+	}
+
+	def "nonexistent player cannot go to wait room"() {
+		when:
+		controller.waitRoom("bogus")
+
+		then:
+		thrown EntityNotFoundException
+		and: 'interactions'
+		1 * facade.waitRoom(_) >> { throw new EntityNotFoundException("some message") }
+		0 * _
+	}
+
+	def "player cannot go to wait room twice"() {
+		when:
+		controller.waitRoom(pid)
+
+		then:
+		def ex = thrown(ResponseStatusException)
+		ex.status == HttpStatus.NOT_ACCEPTABLE
+		1 * facade.waitRoom(pid) >> false
 		0 * _
 	}
 }
