@@ -6,8 +6,8 @@ class PlayerSpec extends Specification {
 
 	def "opponent works"() {
 		expect:
-		Player.TWO == Player.ONE.opponent()
+		PlayerRole.TWO == PlayerRole.ONE.opponent()
 		and:
-		Player.ONE == Player.TWO.opponent()
+		PlayerRole.ONE == PlayerRole.TWO.opponent()
 	}
 }

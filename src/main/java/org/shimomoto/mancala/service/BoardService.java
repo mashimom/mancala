@@ -4,7 +4,7 @@ import com.codepoetics.protonpack.maps.MapStream;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.shimomoto.mancala.model.domain.Player;
+import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Board;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,8 @@ public class BoardService {
 		return Board.builder().build();
 	}
 
-	public boolean isLegalMove(final Board board, final Player player, final int position) {
-		if (board.getCurrentPlayer() == player) {
+	public boolean isLegalMove(final Board board, final PlayerRole playerRole, final int position) {
+		if (board.getCurrentPlayer() == playerRole) {
 			return position >= 0 && position < 6 && board.getPits()[position] != 0;
 		}
 		return false;
@@ -47,8 +47,8 @@ public class BoardService {
 		}
 	}
 
-	public void move(final Board board, final Player player, final int position) {
-		if (!isLegalMove(board, player, position)) {
+	public void move(final Board board, final PlayerRole playerRole, final int position) {
+		if (!isLegalMove(board, playerRole, position)) {
 			return;
 		}
 
@@ -92,39 +92,39 @@ public class BoardService {
 
 	public boolean isEndOfGame(final Board board) {
 		final boolean isFirstRowCleared = Arrays.stream(board.getPits())
-				.limit(6)
-				.allMatch(i -> 0 == i);
+						.limit(6)
+						.allMatch(i -> 0 == i);
 		final boolean isSecondRowCleared = Arrays.stream(board.getPits())
-				.skip(7)
-				.limit(6)
-				.allMatch(i -> 0 == i);
+						.skip(7)
+						.limit(6)
+						.allMatch(i -> 0 == i);
 		return isFirstRowCleared || isSecondRowCleared;
 	}
 
-	public Map<Player, Integer> getMatchScore(final Board board) {
+	public Map<PlayerRole, Integer> getMatchScore(final Board board) {
 		return MapStream.of(
-				board.getCurrentPlayer(), board.getPits()[6],
-				board.getCurrentPlayer().opponent(), board.getPits()[13])
-				.collect();
+						board.getCurrentPlayer(), board.getPits()[6],
+						board.getCurrentPlayer().opponent(), board.getPits()[13])
+						.collect();
 	}
 
 	public void endGameMove(final Board board) {
 		board.getPits()[6] = Arrays.stream(board.getPits()).limit(7).sum();
 		IntStream.range(0, 6)
-				.forEach(i -> board.getPits()[i] = 0);
+						.forEach(i -> board.getPits()[i] = 0);
 		board.getPits()[13] = Arrays.stream(board.getPits()).skip(7).sum();
 		IntStream.range(7, 13)
-				.forEach(i -> board.getPits()[i] = 0);
+						.forEach(i -> board.getPits()[i] = 0);
 	}
 
-	public Optional<Player> findWinner(final Board board) {
-		final Map<Player, Integer> matchScore = this.getMatchScore(board);
-		if (matchScore.get(Player.ONE).equals(matchScore.get(Player.TWO))) {
+	public Optional<PlayerRole> findWinner(final Board board) {
+		final Map<PlayerRole, Integer> matchScore = this.getMatchScore(board);
+		if (matchScore.get(PlayerRole.ONE).equals(matchScore.get(PlayerRole.TWO))) {
 			//its a draw
 			return Optional.empty();
 		}
 		return MapStream.of(matchScore)
-				.max(Map.Entry.comparingByValue())
-				.map(Map.Entry::getKey);
+						.max(Map.Entry.comparingByValue())
+						.map(Map.Entry::getKey);
 	}
 }

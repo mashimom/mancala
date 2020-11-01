@@ -1,6 +1,6 @@
 package org.shimomoto.mancala.service
 
-import org.shimomoto.mancala.model.domain.Player
+import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
 import spock.lang.Specification
@@ -129,15 +129,15 @@ class GameFacadeSpec extends Specification {
 		given:
 		Game g = Game.builder().build()
 		when:
-		def result = facade.move('someid', Player.TWO, 4i)
+		def result = facade.move('someid', PlayerRole.TWO, 4i)
 
 		then:
 		result == g
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
 		2 * boardService.isEndOfGame(_) >> false
-		1 * boardService.isLegalMove(_, Player.TWO, 4i) >> true
-		1 * boardService.move(_, Player.TWO, 4i)
+		1 * boardService.isLegalMove(_, PlayerRole.TWO, 4i) >> true
+		1 * boardService.move(_, PlayerRole.TWO, 4i)
 		1 * service.save(g)
 		0 * _
 	}
@@ -145,15 +145,15 @@ class GameFacadeSpec extends Specification {
 	def "move works at end of game"() {
 		given:
 		Board board = Board.builder()
-				.turnCount(23)
-				.currentPlayer(Player.ONE)
+						.turnCount(23)
+						.currentPlayer(PlayerRole.ONE)
 				.pits([0, 0, 0, 0, 0, 7, 21, 3, 2, 3, 13, 0, 0, 15] as int[])
 				.build()
 		Game game = Game.builder()
 				.board(board)
 						.build()
 		when:
-		def result = facade.move('someid', Player.ONE, 5i)
+		def result = facade.move('someid', PlayerRole.ONE, 5i)
 
 		then:
 		result == game
@@ -161,12 +161,12 @@ class GameFacadeSpec extends Specification {
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(game)
 		1 * boardService.isEndOfGame(board) >> false
-		1 * boardService.isLegalMove(board, Player.ONE, 5i) >> true
-		1 * boardService.move(board, Player.ONE, 5i)
+		1 * boardService.isLegalMove(board, PlayerRole.ONE, 5i) >> true
+		1 * boardService.move(board, PlayerRole.ONE, 5i)
 		1 * boardService.isEndOfGame(board) >> true
 		1 * boardService.endGameMove(board)
-		1 * boardService.findWinner(board) >> Optional.of(Player.ONE)
-		1 * service.increaseScore(game, Player.ONE) >> { it }
+		1 * boardService.findWinner(board) >> Optional.of(PlayerRole.ONE)
+		1 * service.increaseScore(game, PlayerRole.ONE) >> { it }
 		1 * service.setEndOfGame(game)
 		1 * service.save(game)
 		0 * _
@@ -176,7 +176,7 @@ class GameFacadeSpec extends Specification {
 		given:
 		Game g = Game.builder().build()
 		when:
-		facade.move('someid', Player.TWO, 4i)
+		facade.move('someid', PlayerRole.TWO, 4i)
 
 		then:
 		thrown UnsupportedOperationException
@@ -188,7 +188,7 @@ class GameFacadeSpec extends Specification {
 
 	def "move fails when id is not found"() {
 		when:
-		facade.move('missingid', Player.TWO, 4i)
+		facade.move('missingid', PlayerRole.TWO, 4i)
 
 		then:
 		thrown EntityNotFoundException

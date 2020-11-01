@@ -10,18 +10,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
-import org.shimomoto.mancala.model.domain.Player;
+import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.service.GameFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.stream.Stream;
@@ -77,10 +71,10 @@ public class GameController {
 	@Operation(summary = "Make a move, invalid moves have no effect")
 	@PostMapping("/{id}/move")
 	public Game move(@Parameter(description = "Game id") @PathVariable final String id,
-	                 @Parameter(description = "Player that will make a move") @NotNull @RequestParam final Player player,
+	                 @Parameter(description = "Player that will make a move") @NotNull @RequestParam final PlayerRole playerRole,
 	                 @Parameter(description = "Position that refers to movement") @RequestParam final int position) {
 		try {
-			return facade.move(id, player, position);
+			return facade.move(id, playerRole, position);
 		} catch (final UnsupportedOperationException e) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
 		}
