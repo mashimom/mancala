@@ -34,7 +34,7 @@ public class WaitRoom {
 	@NotBlank
 	String roomName;
 
-	@OneToMany(mappedBy = "waitRoom")
+	@OneToMany
 	@Builder.Default
 	Set<User> signed = new HashSet<>();
 
