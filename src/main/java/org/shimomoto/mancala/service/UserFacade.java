@@ -41,7 +41,7 @@ public class UserFacade {
 	GameService gameService;
 
 	/**
-	 * This a an exception safe way to find a player.
+	 * This a an exception safe way to find a player by public id.
 	 *
 	 * @param pid public id of a player
 	 * @return player when found or empty when not
