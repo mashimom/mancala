@@ -12,10 +12,9 @@ import lombok.experimental.FieldDefaults;
 import org.shimomoto.mancala.model.transfer.UserDto;
 import org.shimomoto.mancala.service.UserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -38,10 +37,23 @@ public class PlayerController {
 					@ApiResponse(responseCode = "404", description = "Player not found",
 									content = @Content)})
 	@GetMapping("/{pid}")
-	public UserDto fetch(@Parameter(description = "Player public id") @PathVariable final String pid) {
+	public UserDto fetch(@Parameter(description = "Player public id", required = true) @PathVariable final String pid) {
 		return facade.getPlayer(pid)
 						.orElseThrow(() ->
 										new EntityNotFoundException(format("Unable to find player: {0}", pid)));
 	}
 
+	@Operation(summary = "Go to wait room for a new game")
+	@ResponseStatus(value = HttpStatus.ACCEPTED,
+					reason = "Player now waiting for a new game")
+	@ApiResponses(value = {
+					@ApiResponse(responseCode = "202", description = "Player now waiting for a new game"),
+					@ApiResponse(responseCode = "404", description = "Player not found"),
+					@ApiResponse(responseCode = "409", description = "Player already waiting for a new game")})
+	@PostMapping("/{pid}/wait-room")
+	public void waitRoom(@Parameter(description = "Player public id", required = true) @PathVariable final String pid) {
+		if (!facade.waitRoom(pid)) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Player already waiting for a new game");
+		}
+	}
 }
