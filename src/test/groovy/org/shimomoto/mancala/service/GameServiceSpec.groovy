@@ -1,6 +1,6 @@
 package org.shimomoto.mancala.service
 
-import org.shimomoto.mancala.model.domain.Player
+import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.repository.GameRepository
@@ -88,7 +88,7 @@ class GameServiceSpec extends Specification {
 		then:
 		result != null
 		with(result) {
-			playerNames == [(Player.ONE): p1, (Player.TWO): p2]
+			playerNames == [(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]
 		}
 	}
 
@@ -109,8 +109,8 @@ class GameServiceSpec extends Specification {
 	def "createRematch works"() {
 		given:
 		Game g = Mock(Game)
-		def playerNames = [(Player.ONE): 'Kirk', (Player.TWO): 'Spock']
-		def gameScore = [(Player.ONE): 77, (Player.TWO): 212]
+		def playerNames = [(PlayerRole.ONE): 'Kirk', (PlayerRole.TWO): 'Spock']
+		def gameScore = [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 
 		when:
 		def result = service.createRematch(g)
@@ -125,38 +125,38 @@ class GameServiceSpec extends Specification {
 		}
 		and: 'interactions'
 		1 * g.playerNames >> playerNames
-		1 * g.winsByPlayer >> [(Player.ONE): 77, (Player.TWO): 212]
+		1 * g.winsByPlayer >> [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 	}
 
 	def "increaseScore works"() {
 		given:
 		Game g = Game.builder()
-				.winsByPlayer([(Player.ONE): 0, (Player.TWO): 0])
+						.winsByPlayer([(PlayerRole.ONE): 0, (PlayerRole.TWO): 0])
 				.build()
 
 		when:
-		service.increaseScore(g, Player.ONE)
+		service.increaseScore(g, PlayerRole.ONE)
 
 		then:
-		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 0]
+		g.winsByPlayer == [(PlayerRole.ONE): 1, (PlayerRole.TWO): 0]
 
 		when:
-		service.increaseScore(g, Player.TWO)
+		service.increaseScore(g, PlayerRole.TWO)
 
 		then:
-		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 1]
+		g.winsByPlayer == [(PlayerRole.ONE): 1, (PlayerRole.TWO): 1]
 
 		when:
-		service.increaseScore(g, Player.TWO)
+		service.increaseScore(g, PlayerRole.TWO)
 
 		then:
-		g.winsByPlayer == [(Player.ONE): 1, (Player.TWO): 2]
+		g.winsByPlayer == [(PlayerRole.ONE): 1, (PlayerRole.TWO): 2]
 
 		when:
 		service.increaseScore(g, null)
 
 		then:
-		g.winsByPlayer == [(Player.ONE): 2, (Player.TWO): 3]
+		g.winsByPlayer == [(PlayerRole.ONE): 2, (PlayerRole.TWO): 3]
 	}
 
 	def "setEndOfGame works"() {

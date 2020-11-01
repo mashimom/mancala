@@ -1,22 +1,12 @@
 package org.shimomoto.mancala.model.entity;
 
 import com.codepoetics.protonpack.maps.MapStream;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.shimomoto.mancala.model.domain.Player;
+import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.util.PublicIdSupplier;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.MapKeyEnumerated;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -40,17 +30,17 @@ public class Game {
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Builder.Default
-	Map<Player, String> playerNames =
-			MapStream.of(
-					Player.ONE, "Player 1",
-					Player.TWO, "Player 2")
-					.collect();
+	Map<PlayerRole, String> playerNames =
+					MapStream.of(
+									PlayerRole.ONE, "Player 1",
+									PlayerRole.TWO, "Player 2")
+									.collect();
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Builder.Default
-	Map<Player, Integer> winsByPlayer =
-			MapStream.of(
-					Player.ONE, 0,
-					Player.TWO, 0)
-					.collect();
+	Map<PlayerRole, Integer> winsByPlayer =
+					MapStream.of(
+									PlayerRole.ONE, 0,
+									PlayerRole.TWO, 0)
+									.collect();
 }

@@ -1,6 +1,6 @@
 package org.shimomoto.mancala.controller
 
-import org.shimomoto.mancala.model.domain.Player
+import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.service.GameFacade
 import org.springframework.http.HttpStatus
@@ -144,25 +144,25 @@ class GameControllerSpec extends Specification {
 		Game g = Mock(Game)
 
 		when:
-		def result = controller.move('someid', Player.ONE, 1)
+		def result = controller.move('someid', PlayerRole.ONE, 1)
 
 		then:
 		result != null
 		result == g
 		and: 'interactions'
-		1 * facade.move('someid', Player.ONE, 1) >> g
+		1 * facade.move('someid', PlayerRole.ONE, 1) >> g
 		0 * _
 	}
 
 	def "move fails for finished game"() {
 		when: 'controller is called for a finished game'
-		controller.move('someid', Player.ONE, 1)
+		controller.move('someid', PlayerRole.ONE, 1)
 
 		then: ''
 		ResponseStatusException e = thrown()
 		e.status == HttpStatus.NOT_ACCEPTABLE
 		and: 'interactions'
-		1 * facade.move('someid', Player.ONE, 1) >> { throw new UnsupportedOperationException("facade thrown") }
+		1 * facade.move('someid', PlayerRole.ONE, 1) >> { throw new UnsupportedOperationException("facade thrown") }
 		0 * _
 	}
 }

@@ -1,12 +1,8 @@
 package org.shimomoto.mancala.model.entity;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.shimomoto.mancala.model.domain.Player;
+import org.shimomoto.mancala.model.domain.PlayerRole;
 
 import javax.persistence.Embeddable;
 
@@ -20,7 +16,7 @@ public class Board {
 	@Builder.Default
 	int turnCount = 1;
 	@Builder.Default
-	Player currentPlayer = Player.ONE;
+	PlayerRole currentPlayer = PlayerRole.ONE;
 	@Builder.Default
 	int[] pits = {6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0};
 }

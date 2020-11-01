@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.shimomoto.mancala.model.domain.Player;
+import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Board;
 import org.shimomoto.mancala.model.entity.Game;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,20 +76,20 @@ public class GameFacade {
 	}
 
 	@NotNull
-	public Game move(final String id, final @NotNull Player player, final Integer position) {
+	public Game move(final String id, final @NotNull PlayerRole playerRole, final Integer position) {
 		final Game game = getGameById(id);
 		final Board board = game.getBoard();
 
 		if (boardService.isEndOfGame(board)) {
 			throw new UnsupportedOperationException("The game has ended and all moves are illegal.");
 		}
-		if (!boardService.isLegalMove(board, player, position)) {
-			throw new UnsupportedOperationException(format("The requested move {} from {} is not legal", player, position));
+		if (!boardService.isLegalMove(board, playerRole, position)) {
+			throw new UnsupportedOperationException(format("The requested move {} from {} is not legal", playerRole, position));
 		}
-		boardService.move(board, player, position);
+		boardService.move(board, playerRole, position);
 		if (boardService.isEndOfGame(board)) {
 			boardService.endGameMove(board);
-			final Optional<Player> winner = boardService.findWinner(board);
+			final Optional<PlayerRole> winner = boardService.findWinner(board);
 			service.increaseScore(game, winner.orElse(null));
 			service.setEndOfGame(game);
 		}

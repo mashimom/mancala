@@ -1,10 +1,10 @@
 package org.shimomoto.mancala.model.domain;
 
-public enum Player {
+public enum PlayerRole {
 	ONE,
 	TWO;
 
-	public Player opponent() {
+	public PlayerRole opponent() {
 		return switch (this) {
 			case ONE -> TWO;
 			case TWO -> ONE;
