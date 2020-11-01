@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.util.PublicIdSupplier;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,13 +21,23 @@ public class Game {
 	@Id
 	@Builder.Default
 	String id = PublicIdSupplier.get();
+
+	@Version
+	@EqualsAndHashCode.Exclude
+	@Builder.Default
+	Long version = null;
+
 	@Builder.Default
 	@Embedded
 	Board board = Board.builder().build();
+
+	@CreatedDate
 	@Builder.Default
 	LocalDateTime gameStart = LocalDateTime.now();
+
 	@Builder.Default
 	boolean endOfGame = false;
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Builder.Default
@@ -35,6 +46,7 @@ public class Game {
 									PlayerRole.ONE, "Player 1",
 									PlayerRole.TWO, "Player 2")
 									.collect();
+
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)
 	@Builder.Default
