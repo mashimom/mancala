@@ -82,6 +82,8 @@ dependencies {
 	testRuntime 'org.objenesis:objenesis:2.1'
 	// allows mocking of classes without default constructor (together with CGLIB)
 
+	integrationTestImplementation 'io.github.http-builder-ng:http-builder-ng-core:1.0.4'
+
 	integrationTestRuntime 'com.h2database:h2'
 }
 
@@ -100,7 +102,9 @@ test {
 jacocoTestReport {
 	afterEvaluate {
 		classDirectories.setFrom(files(classDirectories.files.collect {
-			fileTree(dir: it, exclude: 'org/shimomoto/frostbite/model/*')
+			fileTree(dir: it, exclude: ['org/shimomoto/mancala/model/entity/*',
+			                            'org/shimomoto/mancala/model/transfer/*',
+			                            'org/shimomoto/mancala/repository/*'])
 		}))
 	}
 	dependsOn test
