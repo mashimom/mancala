@@ -83,6 +83,9 @@ public class GameFacade {
 		if (boardService.isEndOfGame(board)) {
 			throw new UnsupportedOperationException("The game has ended and all moves are illegal.");
 		}
+		if (!boardService.isLegalMove(board, player, position)) {
+			throw new UnsupportedOperationException(format("The requested move {} from {} is not legal", player, position));
+		}
 		boardService.move(board, player, position);
 		if (boardService.isEndOfGame(board)) {
 			boardService.endGameMove(board);

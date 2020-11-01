@@ -12,7 +12,7 @@ The task [assignment](./Coding_Challenge.pdf)
     * [x] set operations
     * [x] set end game
 * [x] add REST interface with controllers
-* [ ] refactor/cleanup from legacy implementation
+* [x] refactor/cleanup from legacy implementation
 * [ ] players are remote, from different machines
     + [ ] add players, with:
         - id
@@ -24,6 +24,7 @@ The task [assignment](./Coding_Challenge.pdf)
     + [ ] add authorization
         - pass player id to endpoint
 * [ ] wait room for players, join 2 *different* players in a game
+* [ ] leaderboard to challenge other players
 * [ ] list ongoing and finished games for player
 * [x] open ongoing game
 * [ ] only moves own player game and pit
