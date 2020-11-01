@@ -136,6 +136,7 @@ class GameFacadeSpec extends Specification {
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
 		2 * boardService.isEndOfGame(_) >> false
+		1 * boardService.isLegalMove(_, Player.TWO, 4i) >> true
 		1 * boardService.move(_, Player.TWO, 4i)
 		1 * service.save(g)
 		0 * _
@@ -150,7 +151,7 @@ class GameFacadeSpec extends Specification {
 				.build()
 		Game game = Game.builder()
 				.board(board)
-				.build()
+						.build()
 		when:
 		def result = facade.move('someid', Player.ONE, 5i)
 
@@ -160,6 +161,7 @@ class GameFacadeSpec extends Specification {
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(game)
 		1 * boardService.isEndOfGame(board) >> false
+		1 * boardService.isLegalMove(board, Player.ONE, 5i) >> true
 		1 * boardService.move(board, Player.ONE, 5i)
 		1 * boardService.isEndOfGame(board) >> true
 		1 * boardService.endGameMove(board)
