@@ -1,6 +1,7 @@
 package org.shimomoto.mancala.service
 
 import org.shimomoto.mancala.model.entity.User
+import org.shimomoto.mancala.model.entity.WaitRoom
 import spock.lang.Specification
 import spock.lang.Subject
 import spock.lang.Unroll
@@ -11,9 +12,10 @@ class UserFacadeSpec extends Specification {
 
 	UserService service = Mock(UserService)
 	WaitRoomService waitRoomService = Mock(WaitRoomService)
+	GameService gameService = Mock(GameService)
 
 	@Subject
-	UserFacade facade = new UserFacade(service, waitRoomService)
+	UserFacade facade = new UserFacade(service, waitRoomService, gameService)
 
 	UUID id = UUID.fromString('311e68fd-0b4f-49b1-b28f-0f409490dec4')
 	String pid = 'MR5o_QtPSbGyjw9AlJDexA'
@@ -67,6 +69,8 @@ class UserFacadeSpec extends Specification {
 	def "user enters wait room"() {
 		given:
 		User u = Mock(User)
+		WaitRoom r = Mock(WaitRoom)
+
 		when:
 		def result = facade.waitRoom(pid)
 
@@ -74,13 +78,16 @@ class UserFacadeSpec extends Specification {
 		result
 		and: 'interactions'
 		1 * service.getPlayer(id) >> Optional.of(u)
-		1 * waitRoomService.enter(u) >> true
+		1 * waitRoomService.getFirstRoom() >> r
+		1 * waitRoomService.enter(r, u) >> true
 		0 * _
 	}
 
 	def "user already in wait room"() {
 		given:
 		User u = Mock(User)
+		WaitRoom r = Mock(WaitRoom)
+
 		when:
 		def result = facade.waitRoom(pid)
 
@@ -88,7 +95,8 @@ class UserFacadeSpec extends Specification {
 		!result
 		and: 'interactions'
 		1 * service.getPlayer(id) >> Optional.of(u)
-		1 * waitRoomService.enter(u) >> false
+		1 * waitRoomService.getFirstRoom() >> r
+		1 * waitRoomService.enter(r, u) >> false
 		0 * _
 	}
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.entity.User;
+import org.shimomoto.mancala.model.entity.WaitRoom;
 import org.shimomoto.mancala.model.transfer.UserDto;
 import org.shimomoto.mancala.model.util.PublicIdUtils;
 import org.shimomoto.mancala.transformer.api.UserTransformer;
@@ -36,6 +37,9 @@ public class UserFacade {
 	@Autowired
 	WaitRoomService waitRoomService;
 
+	@Autowired
+	GameService gameService;
+
 	/**
 	 * This a an exception safe way to find a player.
 	 *
@@ -54,6 +58,9 @@ public class UserFacade {
 						.flatMap(PublicIdUtils::stringDecode)
 						.flatMap(service::getPlayer)
 						.orElseThrow(() -> new EntityNotFoundException(format("Could not find a player with pid {0}", pid)));
-		return waitRoomService.enter(user);
+
+		final WaitRoom room = waitRoomService.getFirstRoom();
+
+		return waitRoomService.enter(room, user);
 	}
 }
