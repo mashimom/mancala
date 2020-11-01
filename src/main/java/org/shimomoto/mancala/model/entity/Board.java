@@ -15,8 +15,10 @@ import javax.persistence.Embeddable;
 public class Board {
 	@Builder.Default
 	int turnCount = 1;
+
 	@Builder.Default
 	PlayerRole currentPlayer = PlayerRole.ONE;
+
 	@Builder.Default
 	int[] pits = {6, 6, 6, 6, 6, 6, 0, 6, 6, 6, 6, 6, 6, 0};
 }
