@@ -45,17 +45,21 @@ public class GameController {
 
 	@Operation(summary = "Get game by id")
 	@ApiResponses(value = {
-			@ApiResponse(responseCode = "200", description = "Found the game",
-					content = {@Content(mediaType = "application/json",
-							schema = @Schema(implementation = Game.class))}),
-			@ApiResponse(responseCode = "404", description = "Game not found",
-					content = @Content)})
+					@ApiResponse(responseCode = "200", description = "Found the game",
+									content = {@Content(mediaType = "application/json",
+													schema = @Schema(implementation = Game.class))}),
+					@ApiResponse(responseCode = "404", description = "Game not found",
+									content = @Content)})
 	@GetMapping("/{id}")
 	public Game fetch(@Parameter(description = "Game id") @PathVariable final String id) {
 		return facade.getGameById(id);
 	}
 
 	@Operation(summary = "Start a new game")
+	@ApiResponses(value = {
+					@ApiResponse(responseCode = "200", description = "Game created",
+									content = {@Content(mediaType = "application/json",
+													schema = @Schema(implementation = Game.class))})})
 	@PostMapping("/")
 	public Game startGame(@Parameter(description = "Player 1 display name") @RequestParam(defaultValue = "Player 1") final String player1,
 	                      @Parameter(description = "Player 2 display name") @RequestParam(defaultValue = "Player 2") final String player2) {
@@ -63,12 +67,28 @@ public class GameController {
 	}
 
 	@Operation(summary = "Start a new game keeping players names and score")
+	@ApiResponses(value = {
+					@ApiResponse(responseCode = "200", description = "New rematch game created",
+									content = {@Content(mediaType = "application/json",
+													schema = @Schema(implementation = Game.class))}),
+					@ApiResponse(responseCode = "406", description = "Unable to create a rematch on ongoing game",
+									content = @Content)})
 	@PostMapping("/{id}/rematch")
 	public Game rematch(@Parameter(description = "Game id") @PathVariable final String id) {
-		return facade.createRematch(id);
+		try {
+			return facade.createRematch(id);
+		} catch (final UnsupportedOperationException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
+		}
 	}
 
 	@Operation(summary = "Make a move, invalid moves have no effect")
+	@ApiResponses(value = {
+					@ApiResponse(responseCode = "200", description = "Move accepted and applied",
+									content = {@Content(mediaType = "application/json",
+													schema = @Schema(implementation = Game.class))}),
+					@ApiResponse(responseCode = "406", description = "Invalid move",
+									content = @Content)})
 	@PostMapping("/{id}/move")
 	public Game move(@Parameter(description = "Game id") @PathVariable final String id,
 	                 @Parameter(description = "Player that will make a move") @NotNull @RequestParam final PlayerRole playerRole,
