@@ -55,17 +55,6 @@ public class GameController {
 		return facade.getGameById(id);
 	}
 
-	@Operation(summary = "Start a new game")
-	@ApiResponses(value = {
-					@ApiResponse(responseCode = "200", description = "Game created",
-									content = {@Content(mediaType = "application/json",
-													schema = @Schema(implementation = Game.class))})})
-	@PostMapping("/")
-	public Game startGame(@Parameter(description = "Player 1 display name") @RequestParam(defaultValue = "Player 1") final String player1,
-	                      @Parameter(description = "Player 2 display name") @RequestParam(defaultValue = "Player 2") final String player2) {
-		return facade.createGame(player1, player2);
-	}
-
 	@Operation(summary = "Start a new game keeping players names and score")
 	@ApiResponses(value = {
 					@ApiResponse(responseCode = "200", description = "New rematch game created",

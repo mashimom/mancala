@@ -3,6 +3,7 @@ package org.shimomoto.mancala.model.entity;
 import com.codepoetics.protonpack.maps.MapStream;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.util.PublicIdSupplier;
 import org.springframework.data.annotation.CreatedDate;
@@ -38,14 +39,13 @@ public class Game {
 	@Builder.Default
 	boolean endOfGame = false;
 
-	@ElementCollection(fetch = FetchType.EAGER)
-	@MapKeyEnumerated(EnumType.STRING)
-	@Builder.Default
-	Map<PlayerRole, String> playerNames =
-					MapStream.of(
-									PlayerRole.ONE, "Player 1",
-									PlayerRole.TWO, "Player 2")
-									.collect();
+	@NotNull
+	@OneToOne(optional = false)
+	User playerOne;
+
+	@NotNull
+	@OneToOne(optional = false)
+	User playerTwo;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Board;
 import org.shimomoto.mancala.model.entity.Game;
+import org.shimomoto.mancala.model.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,13 +40,8 @@ public class GameFacade {
 	BoardService boardService;
 
 	@NotNull
-	public Game createGame(final @Nullable String player1, final @Nullable String player2) {
-		final String player1Name = Optional.ofNullable(player1)
-				.orElse("Player 1");
-		final String player2Name = Optional.ofNullable(player2)
-				.orElse("Player 2");
-
-		final Game game = service.newGame(player1Name, player2Name);
+	public Game createGame(final @NotNull User playerOne, final @NotNull User playerTwo) {
+		final Game game = service.newGame(playerOne, playerTwo);
 		service.save(game);
 		return game;
 	}
@@ -71,8 +67,8 @@ public class GameFacade {
 	@NotNull
 	public Game getGameById(final @Nullable String id) {
 		return service.getGame(id)
-				.orElseThrow(() ->
-						new EntityNotFoundException(format("Unable to find game: {0}", id)));
+						.orElseThrow(() ->
+										new EntityNotFoundException(format("Unable to find game: {0}", id)));
 	}
 
 	@NotNull

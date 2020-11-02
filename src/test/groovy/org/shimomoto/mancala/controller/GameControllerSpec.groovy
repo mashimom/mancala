@@ -24,7 +24,7 @@ class GameControllerSpec extends Specification {
 
 	def "list works"() {
 		given: '3 games'
-		def games = [Game.builder().build(), Game.builder().build(), Game.builder().build()]
+		def games = (1..3).collect { Mock(Game) }
 
 		when: 'listing the stream'
 		def result = controller.list().collect(Collectors.toList())
@@ -69,48 +69,6 @@ class GameControllerSpec extends Specification {
 		thrown EntityNotFoundException
 		and: 'interactions'
 		1 * facade.getGameById('illegalid') >> { throw new EntityNotFoundException("msg") }
-		0 * _
-	}
-
-	def "startGame works with player names"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		def result = controller.startGame('kirk', 'spock')
-
-		then:
-		result == g
-		and: 'interactions'
-		1 * facade.createGame('kirk', 'spock') >> g
-		0 * _
-	}
-
-	def "startGame works without player names - INVALID due to default values"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		def result = controller.startGame(null, null)
-
-		then:
-		result == g
-		and: 'interactions'
-		1 * facade.createGame(null, null) >> g
-		0 * _
-	}
-
-	def "startGame works with single player name - INVALID due to default values"() {
-		given:
-		Game g = Mock(Game)
-
-		when:
-		def result = controller.startGame('mccoy', null)
-
-		then:
-		result == g
-		and: 'interactions'
-		1 * facade.createGame('mccoy', null) >> g
 		0 * _
 	}
 
