@@ -3,6 +3,7 @@ package org.shimomoto.mancala.service
 import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
+import org.shimomoto.mancala.model.entity.User
 import org.shimomoto.mancala.repository.GameRepository
 import spock.lang.Specification
 import spock.lang.Subject
@@ -15,7 +16,9 @@ class GameServiceSpec extends Specification {
 
 	def "getAll with some results"() {
 		given:
-		def games = [Game.builder().build(), Game.builder().build()]
+
+		def games = [Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build(),
+		             Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()]
 
 		when:
 		def result = service.getAll()
@@ -79,8 +82,8 @@ class GameServiceSpec extends Specification {
 
 	def "newGame works"() {
 		given:
-		def p1 = 'player1'
-		def p2 = 'player2'
+		def p1 = Mock(User)
+		def p2 = Mock(User)
 
 		when:
 		def result = service.newGame(p1, p2)
@@ -88,19 +91,22 @@ class GameServiceSpec extends Specification {
 		then:
 		result != null
 		with(result) {
-			playerNames == [(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]
+			playerOne == p1
+			playerTwo == p2
 		}
 	}
 
 	def "newGame fails"() {
+		given:
+		User p = Mock(User)
 		when:
-		service.newGame(null, 'somename')
+		service.newGame(null, p)
 
 		then:
 		thrown NullPointerException
 
 		when:
-		service.newGame('someothername', null)
+		service.newGame(p, null)
 
 		then:
 		thrown NullPointerException
@@ -109,7 +115,8 @@ class GameServiceSpec extends Specification {
 	def "createRematch works"() {
 		given:
 		Game g = Mock(Game)
-		def playerNames = [(PlayerRole.ONE): 'Kirk', (PlayerRole.TWO): 'Spock']
+		User p1 = Mock(User)
+		User p2 = Mock(User)
 		def gameScore = [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 
 		when:
@@ -120,19 +127,23 @@ class GameServiceSpec extends Specification {
 		with(result) {
 			board == Board.builder().build()
 			!endOfGame
-			playerNames == playerNames
+			playerOne == p1
+			playerTwo == p2
 			winsByPlayer == gameScore
 		}
 		and: 'interactions'
-		1 * g.playerNames >> playerNames
+		1 * g.playerOne >> p1
+		1 * g.playerTwo >> p2
 		1 * g.winsByPlayer >> [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 	}
 
 	def "increaseScore works"() {
 		given:
 		Game g = Game.builder()
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
 						.winsByPlayer([(PlayerRole.ONE): 0, (PlayerRole.TWO): 0])
-				.build()
+						.build()
 
 		when:
 		service.increaseScore(g, PlayerRole.ONE)
@@ -162,8 +173,10 @@ class GameServiceSpec extends Specification {
 	def "setEndOfGame works"() {
 		given:
 		Game g = Game.builder()
-				.endOfGame(false)
-				.build()
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
+						.endOfGame(false)
+						.build()
 
 		when:
 		service.setEndOfGame(g)

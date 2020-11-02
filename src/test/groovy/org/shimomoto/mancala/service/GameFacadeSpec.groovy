@@ -3,6 +3,7 @@ package org.shimomoto.mancala.service
 import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Board
 import org.shimomoto.mancala.model.entity.Game
+import org.shimomoto.mancala.model.entity.User
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -33,31 +34,19 @@ class GameFacadeSpec extends Specification {
 		result != null
 		result.count() == 2
 		and: 'interactions'
-		1 * service.getAll() >> [Game.builder().build(), Game.builder().build()]
+		1 * service.getAll() >> [Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build(),
+		                         Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()]
 		0 * _
 	}
 
-	def "createGame works without names"() {
+	def "createGame works with users"() {
 		given:
-		def g = Game.builder().build()
-
-		when:
-		def result = facade.createGame(null, null)
-
-		then:
-		result != null
-		and: 'interactions'
-
-		1 * service.newGame('Player 1', 'Player 2') >> g
-		1 * service.save(g)
-		0 * _
-	}
-
-	def "createGame works with names"() {
-		given:
-		def g = Game.builder().build()
-		def p1 = 'p1'
-		def p2 = 'p2'
+		def p1 = Mock(User)
+		def p2 = Mock(User)
+		def g = Game.builder()
+						.playerOne(p1)
+						.playerTwo(p2)
+						.build()
 
 		when:
 		def result = facade.createGame(p1, p2)
@@ -66,7 +55,7 @@ class GameFacadeSpec extends Specification {
 		result != null
 
 		and: 'interactions'
-		1 * service.newGame('p1', 'p2') >> g
+		1 * service.newGame(p1, p2) >> g
 		1 * service.save(g)
 		0 * _
 	}
@@ -104,13 +93,15 @@ class GameFacadeSpec extends Specification {
 	}
 
 	def "getGameById works"() {
+		given:
+		Game g = Mock()
 		when:
 		def result = facade.getGameById('thatid')
 
 		then:
-		result != null
+		result == g
 		and: 'interactions'
-		1 * service.getGame('thatid') >> Optional.of(Game.builder().build())
+		1 * service.getGame('thatid') >> Optional.of(g)
 		0 * _
 	}
 
@@ -127,7 +118,7 @@ class GameFacadeSpec extends Specification {
 
 	def "move works"() {
 		given:
-		Game g = Game.builder().build()
+		Game g = Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()
 		when:
 		def result = facade.move('someid', PlayerRole.TWO, 4i)
 
@@ -147,10 +138,12 @@ class GameFacadeSpec extends Specification {
 		Board board = Board.builder()
 						.turnCount(23)
 						.currentPlayer(PlayerRole.ONE)
-				.pits([0, 0, 0, 0, 0, 7, 21, 3, 2, 3, 13, 0, 0, 15] as int[])
-				.build()
+						.pits([0, 0, 0, 0, 0, 7, 21, 3, 2, 3, 13, 0, 0, 15] as int[])
+						.build()
 		Game game = Game.builder()
-				.board(board)
+						.board(board)
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
 						.build()
 		when:
 		def result = facade.move('someid', PlayerRole.ONE, 5i)
@@ -174,7 +167,7 @@ class GameFacadeSpec extends Specification {
 
 	def "move fails when game ended"() {
 		given:
-		Game g = Game.builder().build()
+		Game g = Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()
 		when:
 		facade.move('someid', PlayerRole.TWO, 4i)
 

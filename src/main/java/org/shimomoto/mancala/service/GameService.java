@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Game;
+import org.shimomoto.mancala.model.entity.User;
 import org.shimomoto.mancala.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,21 +28,20 @@ class GameService {
 	@Autowired
 	GameRepository repo;
 
-	public Game newGame(@NotNull final String player1Name, @NotNull final String player2Name) {
+	public Game newGame(@NotNull final User playerOne, @NotNull final User playerTwo) {
 		return Game.builder()
-				.playerNames(MapStream.of(
-								PlayerRole.ONE, player1Name,
-								PlayerRole.TWO, player2Name)
-						.collect())
-				.build();
+						.playerOne(playerOne)
+						.playerTwo(playerTwo)
+						.build();
 	}
 
 	@NotNull
 	public Game createRematch(@NotNull final Game finishedGame) {
 		return Game.builder()
-				.playerNames(finishedGame.getPlayerNames())
-				.winsByPlayer(finishedGame.getWinsByPlayer())
-				.build();
+						.playerOne(finishedGame.getPlayerOne())
+						.playerTwo(finishedGame.getPlayerTwo())
+						.winsByPlayer(finishedGame.getWinsByPlayer())
+						.build();
 	}
 
 	public Iterable<Game> getAll() {

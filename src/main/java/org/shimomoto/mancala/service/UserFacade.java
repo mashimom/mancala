@@ -58,9 +58,7 @@ public class UserFacade {
 						.flatMap(PublicIdUtils::stringDecode)
 						.flatMap(service::getPlayer)
 						.orElseThrow(() -> new EntityNotFoundException(format("Could not find a player with pid {0}", pid)));
-
 		final WaitRoom room = waitRoomService.getFirstRoom();
-
 		return waitRoomService.enter(room, user);
 	}
 }
