@@ -44,8 +44,7 @@ public class PlayerController {
 	}
 
 	@Operation(summary = "Go to wait room for a new game")
-	@ResponseStatus(value = HttpStatus.ACCEPTED,
-					reason = "Player now waiting for a new game")
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	@ApiResponses(value = {
 					@ApiResponse(responseCode = "202", description = "Player now waiting for a new game"),
 					@ApiResponse(responseCode = "404", description = "Player not found"),

@@ -82,11 +82,10 @@ public class UserFacade {
 		return true;
 	}
 
-	public User create(final String screenName) {
+	public Optional<User> createUser(final @Nullable String screenName) {
 		return Optional.ofNullable(screenName)
 						.filter(StringUtils::isNotBlank)
-						.map(sn -> User.builder().screenName(sn).build())
-						.orElseThrow(() ->
-										new IllegalArgumentException(format("Invalid screen name: {0}", screenName)));
+						.map(service::create);
 	}
+
 }
