@@ -30,7 +30,7 @@ class WaitRoomService {
 
 	@NotNull
 	public WaitRoom getFirstRoom() {
-		//hacking a single entity repo, the best solution would be to queue users and then consume from queue to create games
+		//hacking a single entity repo, the best solution would be to queue users and then consume from queue to createUser games
 		return StreamUtils.stream(repository.findAll())
 						.findFirst()
 						.orElseGet(this::createDefault);
