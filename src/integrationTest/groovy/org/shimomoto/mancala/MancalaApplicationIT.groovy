@@ -1,6 +1,6 @@
 package org.shimomoto.mancala
 
-
+import groovyx.net.http.HttpBuilder
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import spock.lang.Specification
@@ -22,5 +22,21 @@ class MancalaApplicationIT extends Specification {
 		then: 'returns 418 - I am a teapot'
 		def ex = thrown(IOException)
 		ex.message == "Server returned HTTP response code: 418 for URL: http://localhost:${port}/api/game/greeting"
+	}
+
+	def "List player"() {
+		given:
+		def httpBuilder = HttpBuilder.configure {
+			request.uri = "http://localhost:${port}"
+		}
+
+		when:
+		def result = httpBuilder.post {
+			request.uri.path = "/api/user"
+			request.uri.query = [screenName: 'kirk']
+		}
+
+		then:
+		result != null
 	}
 }
