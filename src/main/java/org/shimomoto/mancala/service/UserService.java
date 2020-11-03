@@ -3,6 +3,7 @@ package org.shimomoto.mancala.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.NotNull;
 import org.shimomoto.mancala.model.entity.User;
 import org.shimomoto.mancala.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,5 +22,18 @@ class UserService {
 
 	public Optional<User> getPlayer(final UUID id) {
 		return repo.findById(id);
+	}
+
+	public void scoreWin(final @NotNull User user) {
+		user.setGameCount(user.getGameCount() + 1);
+		user.setWinCount(user.getWinCount() + 1);
+	}
+
+	public void scoreLoose(final @NotNull User user) {
+		user.setGameCount(user.getGameCount() + 1);
+	}
+
+	public void scoreDraw(final @NotNull User user) {
+		scoreWin(user);
 	}
 }

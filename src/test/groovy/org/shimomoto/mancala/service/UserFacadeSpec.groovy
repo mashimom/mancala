@@ -1,5 +1,6 @@
 package org.shimomoto.mancala.service
 
+import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.model.entity.User
 import org.shimomoto.mancala.model.entity.WaitRoom
 import spock.lang.Specification
@@ -79,7 +80,10 @@ class UserFacadeSpec extends Specification {
 		and: 'interactions'
 		1 * service.getPlayer(id) >> Optional.of(u)
 		1 * waitRoomService.getFirstRoom() >> r
+		1 * waitRoomService.getUserWaiting(r) >> Optional.empty()
 		1 * waitRoomService.enter(r, u) >> true
+		and: 'do not create a new game'
+		0 * gameService.newGame(_, _)
 		0 * _
 	}
 
@@ -96,7 +100,64 @@ class UserFacadeSpec extends Specification {
 		and: 'interactions'
 		1 * service.getPlayer(id) >> Optional.of(u)
 		1 * waitRoomService.getFirstRoom() >> r
-		1 * waitRoomService.enter(r, u) >> false
+		1 * waitRoomService.getUserWaiting(r) >> Optional.of(u)
+		and: 'explicitly not enter the room or create game'
+		0 * waitRoomService.enter(r, u)
+		0 * gameService.newGame(_, _)
 		0 * _
+	}
+
+	def "another user in waiting room"() {
+		given:
+		User u1 = Mock(User)
+		User u2 = Mock(User)
+		WaitRoom r = Mock(WaitRoom)
+
+		when:
+		def result = facade.waitRoom(pid)
+
+		then:
+		result
+		and: 'interactions'
+		1 * service.getPlayer(id) >> Optional.of(u2)
+		1 * waitRoomService.getFirstRoom() >> r
+		1 * waitRoomService.getUserWaiting(r) >> Optional.of(u1)
+		and: 'explicitly not enter the room but create game'
+		0 * waitRoomService.enter(r, u2) >> false
+		1 * gameService.newGame(u1, u2) >> Mock(Game)
+		0 * _
+	}
+
+	@Unroll
+	def "create user from '#sn' name works"() {
+		when:
+		def result = facade.create(sn)
+
+		then:
+		result != null
+		result.screenName == sn
+
+		where:
+		_ | sn
+		0 | 'Goku'
+		1 | '123deoliveira4'
+		2 | '_+//'
+		3 | '$fd=43'
+	}
+
+	@Unroll
+	def "create user from '#sn' name fails"() {
+		when:
+		facade.create(sn)
+
+		then:
+		thrown IllegalArgumentException
+
+		where:
+		_ | sn
+		0 | ''
+		1 | '\t'
+		2 | '\n'
+		3 | '   '
 	}
 }

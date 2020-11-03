@@ -12,8 +12,9 @@ import javax.persistence.EntityNotFoundException
 class GameFacadeSpec extends Specification {
 	GameService service = Mock(GameService)
 	BoardService boardService = Mock(BoardService)
+	UserService userService = Mock(UserService)
 	@Subject
-	GameFacade facade = new GameFacade(service, boardService)
+	GameFacade facade = new GameFacade(service, boardService, userService)
 
 	def "getAll works when empty"() {
 		when:
@@ -52,11 +53,10 @@ class GameFacadeSpec extends Specification {
 		def result = facade.createGame(p1, p2)
 
 		then:
-		result != null
+		result == g
 
 		and: 'interactions'
 		1 * service.newGame(p1, p2) >> g
-		1 * service.save(g)
 		0 * _
 	}
 
@@ -77,11 +77,10 @@ class GameFacadeSpec extends Specification {
 		1 * g.board >> b
 		1 * boardService.isEndOfGame(b) >> true
 		1 * service.createRematch(g) >> r
-		1 * service.save(r)
 		0 * _
 	}
 
-	def "createRematch fails"() {
+	def "createRematch fails on invalid id"() {
 		when:
 		facade.createRematch('unknownid')
 
@@ -89,6 +88,23 @@ class GameFacadeSpec extends Specification {
 		thrown EntityNotFoundException
 		and: 'interactions'
 		1 * service.getGame('unknownid') >> Optional.empty()
+		0 * _
+	}
+
+	def "createRematch fails on unfinished game"() {
+		given:
+		Game g = Mock(Game)
+		Board b = Mock(Board)
+
+		when:
+		facade.createRematch('someid')
+
+		then:
+		thrown UnsupportedOperationException
+		and: 'interactions'
+		1 * service.getGame('someid') >> Optional.of(g)
+		1 * g.getBoard() >> b
+		1 * boardService.isEndOfGame(b) >> false
 		0 * _
 	}
 
@@ -126,15 +142,18 @@ class GameFacadeSpec extends Specification {
 		result == g
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		2 * boardService.isEndOfGame(_) >> false
+		1 * service.isEndOfGame(g) >> false
 		1 * boardService.isLegalMove(_, PlayerRole.TWO, 4i) >> true
 		1 * boardService.move(_, PlayerRole.TWO, 4i)
+		1 * boardService.isEndOfGame(_) >> false
 		1 * service.save(g)
 		0 * _
 	}
 
-	def "move works at end of game"() {
+	def "last move ends the game"() {
 		given:
+		User p1 = Mock(User)
+		User p2 = Mock(User)
 		Board board = Board.builder()
 						.turnCount(23)
 						.currentPlayer(PlayerRole.ONE)
@@ -142,8 +161,8 @@ class GameFacadeSpec extends Specification {
 						.build()
 		Game game = Game.builder()
 						.board(board)
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playerOne(p1)
+						.playerTwo(p2)
 						.build()
 		when:
 		def result = facade.move('someid', PlayerRole.ONE, 5i)
@@ -153,21 +172,28 @@ class GameFacadeSpec extends Specification {
 
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(game)
-		1 * boardService.isEndOfGame(board) >> false
+		1 * service.isEndOfGame(game) >> false
 		1 * boardService.isLegalMove(board, PlayerRole.ONE, 5i) >> true
 		1 * boardService.move(board, PlayerRole.ONE, 5i)
 		1 * boardService.isEndOfGame(board) >> true
-		1 * boardService.endGameMove(board)
+		1 * boardService.finalizeGame(board)
 		1 * boardService.findWinner(board) >> Optional.of(PlayerRole.ONE)
 		1 * service.increaseScore(game, PlayerRole.ONE) >> { it }
 		1 * service.setEndOfGame(game)
+		1 * userService.scoreWin(p1)
+		1 * userService.scoreLoose(p2)
 		1 * service.save(game)
 		0 * _
 	}
 
-	def "move fails when game ended"() {
+	def "move fails on illegal move"() {
 		given:
-		Game g = Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()
+		Board b = Mock(Board)
+		Game g = Game.builder()
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
+						.board(b)
+						.build()
 		when:
 		facade.move('someid', PlayerRole.TWO, 4i)
 
@@ -175,7 +201,25 @@ class GameFacadeSpec extends Specification {
 		thrown UnsupportedOperationException
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		1 * boardService.isEndOfGame(_) >> true
+		1 * service.isEndOfGame(g) >> false
+		1 * boardService.isLegalMove(b, PlayerRole.TWO, 4i) >> false
+		0 * _
+	}
+
+	def "move fails when game ended"() {
+		given:
+		Game g = Game.builder()
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
+						.build()
+		when:
+		facade.move('someid', PlayerRole.TWO, 4i)
+
+		then:
+		thrown UnsupportedOperationException
+		and: 'interactions'
+		1 * service.getGame('someid') >> Optional.of(g)
+		1 * service.isEndOfGame(g) >> true
 		0 * _
 	}
 
@@ -187,6 +231,60 @@ class GameFacadeSpec extends Specification {
 		thrown EntityNotFoundException
 		and: 'interactions'
 		1 * service.getGame('missingid') >> Optional.empty()
+		0 * _
+	}
+
+	def "endOfGameChanges winner is Player 1 works"() {
+		given:
+		User p1 = User.builder().screenName("Kirk").build()
+		User p2 = User.builder().screenName("Bones").build()
+		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+
+		when:
+		//noinspection GroovyAccessibility
+		facade.endOfGameChanges(g, Optional.of(PlayerRole.ONE))
+
+		then: 'interactions'
+		1 * service.increaseScore(g, PlayerRole.ONE)
+		1 * service.setEndOfGame(g)
+		1 * userService.scoreWin(p1)
+		1 * userService.scoreLoose(p2)
+		0 * _
+	}
+
+	def "endOfGameChanges winner is Player 2 works"() {
+		given:
+		User p1 = User.builder().screenName("Kirk").build()
+		User p2 = User.builder().screenName("Bones").build()
+		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+
+		when:
+		//noinspection GroovyAccessibility
+		facade.endOfGameChanges(g, Optional.of(PlayerRole.TWO))
+
+		then: 'interactions'
+		1 * service.increaseScore(g, PlayerRole.TWO)
+		1 * service.setEndOfGame(g)
+		1 * userService.scoreWin(p2)
+		1 * userService.scoreLoose(p1)
+		0 * _
+	}
+
+	def "endOfGameChanges it is a draw works"() {
+		given:
+		User p1 = User.builder().screenName("Kirk").build()
+		User p2 = User.builder().screenName("Bones").build()
+		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+
+		when:
+		//noinspection GroovyAccessibility
+		facade.endOfGameChanges(g, Optional.empty())
+
+		then: 'interactions'
+		1 * service.increaseScore(g, null)
+		1 * service.setEndOfGame(g)
+		1 * userService.scoreDraw(p1)
+		1 * userService.scoreDraw(p2)
 		0 * _
 	}
 }

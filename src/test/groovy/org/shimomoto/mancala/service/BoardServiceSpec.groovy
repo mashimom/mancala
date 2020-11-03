@@ -272,7 +272,7 @@ class BoardServiceSpec extends Specification {
 				.build()
 
 		when:
-		service.endGameMove(board)
+		service.finalizeGame(board)
 
 		then:
 		board != null

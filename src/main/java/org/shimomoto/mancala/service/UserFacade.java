@@ -3,12 +3,12 @@ package org.shimomoto.mancala.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.entity.User;
 import org.shimomoto.mancala.model.entity.WaitRoom;
-import org.shimomoto.mancala.model.transfer.UserDto;
 import org.shimomoto.mancala.model.util.PublicIdUtils;
-import org.shimomoto.mancala.transformer.api.UserTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,25 +40,53 @@ public class UserFacade {
 	@Autowired
 	GameService gameService;
 
+	@NotNull
+	private Optional<User> getUser(@Nullable final String pid) {
+		return Optional.ofNullable(pid)
+						.flatMap(PublicIdUtils::stringDecode)
+						.flatMap(service::getPlayer);
+	}
+
 	/**
 	 * This a an exception safe way to find a player by public id.
 	 *
 	 * @param pid public id of a player
 	 * @return player when found or empty when not
 	 */
-	public Optional<UserDto> getPlayer(final @Nullable String pid) {
-		return Optional.ofNullable(pid)
-						.flatMap(PublicIdUtils::stringDecode)
-						.flatMap(service::getPlayer)
-						.flatMap(UserTransformer::toDto);
+	public Optional<User> getPlayer(final @Nullable String pid) {
+		return getUser(pid);
 	}
 
+	/**
+	 * This method is doing a bit more than it should, since async match making is not used.
+	 * A user enters the waiting room if it is empty or is not occupied by themselves.
+	 * In the case the waiting room is occupied by another user, a new game is created.
+	 * All users should be able to see their own games by other means.
+	 *
+	 * @param pid public id of a valid user/player
+	 * @return true if the user entered the waiting room or had a new game created
+	 */
 	public boolean waitRoom(final @Nullable String pid) {
-		final User user = Optional.ofNullable(pid)
-						.flatMap(PublicIdUtils::stringDecode)
-						.flatMap(service::getPlayer)
+		final User user = getUser(pid)
 						.orElseThrow(() -> new EntityNotFoundException(format("Could not find a player with pid {0}", pid)));
 		final WaitRoom room = waitRoomService.getFirstRoom();
-		return waitRoomService.enter(room, user);
+
+		final Optional<User> signed = waitRoomService.getUserWaiting(room);
+		if (signed.isEmpty()) {
+			return waitRoomService.enter(room, user);
+		}
+		if (signed.get().equals(user)) {
+			return false;
+		}
+		gameService.newGame(signed.get(), user);
+		return true;
+	}
+
+	public User create(final String screenName) {
+		return Optional.ofNullable(screenName)
+						.filter(StringUtils::isNotBlank)
+						.map(sn -> User.builder().screenName(sn).build())
+						.orElseThrow(() ->
+										new IllegalArgumentException(format("Invalid screen name: {0}", screenName)));
 	}
 }
