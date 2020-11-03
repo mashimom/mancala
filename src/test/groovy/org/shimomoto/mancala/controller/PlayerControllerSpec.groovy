@@ -1,7 +1,6 @@
 package org.shimomoto.mancala.controller
 
-
-import org.shimomoto.mancala.model.transfer.UserDto
+import org.shimomoto.mancala.model.entity.User
 import org.shimomoto.mancala.service.UserFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -22,7 +21,7 @@ class PlayerControllerSpec extends Specification {
 
 	def "fetching existing player works"() {
 		given:
-		UserDto u = Mock(UserDto)
+		User u = Mock(User)
 		when:
 		def result = controller.fetch(pid)
 		println id
