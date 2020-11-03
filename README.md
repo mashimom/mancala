@@ -4,6 +4,8 @@ The task [assignment](./Coding_Challenge.pdf)
 
 ![Java CI with Gradle](https://github.com/mashimom/mancala/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)
 
+I had one implementation of the game I did earlier this year, which I adapted to have players on separate machines.
+
 ## The plan
 
 * [x] setup project properly from spring initialzr and testing layer perspective
@@ -13,8 +15,8 @@ The task [assignment](./Coding_Challenge.pdf)
     * [x] set end game
 * [x] add REST interface with controllers
 * [x] refactor/cleanup from legacy implementation
-* [ ] players are remote, from different machines
-    + [ ] add players, with:
+* [x] players are remote, from different machines
+    + [x] add players, with:
         - id
         - alias
         - game count
@@ -23,20 +25,32 @@ The task [assignment](./Coding_Challenge.pdf)
         - only logged in access
     + [ ] add authorization
         - pass player id to endpoint
-* [ ] wait room for players, join 2 *different* players in a game
+* [x] wait room for players, join 2 *different* players in a game
 * [ ] leaderboard to challenge other players
 * [ ] list ongoing and finished games for player
 * [x] open ongoing game
-* [ ] only moves own player game and pit
+* [x] only moves own player game and pit
 * [ ] only access own player's stats or games
 * [ ] check other player's stats (optional?)
-* [ ] player gets message when it is not their turn yet
-* [ ] integration tests (postman on docker)
-* [ ] add data store
+* [ ] player gets message when it is not their turn yet (optional?)
+* [ ] integration tests (postman on docker?)
+* [x] add data store
 * [ ] kubernetes deploy
 * [ ] serve it (optional?)
 * [ ] final clean-up refactor for release v1
 
+### The compromises
+
+1. the waiting room is an entity on database, it is a poor choice but for time constraints I am not building a queue.  
+The good solution would be to queue players that want to participate in a game, probably use the games/win counts to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
+2. A game can be created without the rematch option, it can be fixed by searching for all previous game for given pair of players, too evolved for now. So there is a known bug.
+3. In order to avoid dtos, and thus a lot of boilerplate code, there is a hack to get public ids from entities.
+ 
+### Resoning
+
+Instead of creating a game with a single user, I added the waiting room concept, which can later be used as means for leaderboard matching or to have games among a small selected group.
+
+The score is kept between two players mainly to let them keep their track record personal.
 ## How to build
 
 ```bash
