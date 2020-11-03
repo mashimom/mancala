@@ -1,6 +1,9 @@
 package org.shimomoto.mancala
 
 import groovyx.net.http.HttpBuilder
+import org.shimomoto.mancala.service.GameFacade
+import org.shimomoto.mancala.service.UserFacade
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
 import spock.lang.Specification
@@ -11,6 +14,12 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 class MancalaApplicationIT extends Specification {
 	@LocalServerPort
 	private int port
+
+	@Autowired
+	GameFacade gameFacade
+
+	@Autowired
+	UserFacade userFacade
 
 	def "REST API is up and answers"() {
 		given: 'dumb url'
@@ -24,7 +33,7 @@ class MancalaApplicationIT extends Specification {
 		ex.message == "Server returned HTTP response code: 418 for URL: http://localhost:${port}/api/game/greeting"
 	}
 
-	def "List player"() {
+	def "add Player"() {
 		given:
 		def httpBuilder = HttpBuilder.configure {
 			request.uri = "http://localhost:${port}"
@@ -32,7 +41,7 @@ class MancalaApplicationIT extends Specification {
 
 		when:
 		def result = httpBuilder.post {
-			request.uri.path = "/api/user"
+			request.uri.path = "/api/user/"
 			request.uri.query = [screenName: 'kirk']
 		}
 
