@@ -18,7 +18,7 @@ public class PublicIdSerializer extends JsonSerializer<UUID> {
 	public void serialize(final UUID id, final JsonGenerator jsonGenerator, final SerializerProvider serializerProvider)
 					throws IOException, JsonProcessingException {
 		final String pid = stringEncode(id);
-		log.info("Serialized {} to {}", id, pid);
+		log.debug("Serialized {} to {}", id, pid);
 		jsonGenerator.writeString(pid);
 	}
 }
