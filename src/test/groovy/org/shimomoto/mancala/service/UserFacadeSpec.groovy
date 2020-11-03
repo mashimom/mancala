@@ -82,7 +82,7 @@ class UserFacadeSpec extends Specification {
 		1 * waitRoomService.getFirstRoom() >> r
 		1 * waitRoomService.getUserWaiting(r) >> Optional.empty()
 		1 * waitRoomService.enter(r, u) >> true
-		and: 'do not create a new game'
+		and: 'do not createUser a new game'
 		0 * gameService.newGame(_, _)
 		0 * _
 	}
@@ -101,19 +101,19 @@ class UserFacadeSpec extends Specification {
 		1 * service.getPlayer(id) >> Optional.of(u)
 		1 * waitRoomService.getFirstRoom() >> r
 		1 * waitRoomService.getUserWaiting(r) >> Optional.of(u)
-		and: 'explicitly not enter the room or create game'
+		and: 'explicitly not enter the room or createUser game'
 		0 * waitRoomService.enter(r, u)
 		0 * gameService.newGame(_, _)
 		0 * _
 	}
 
 	def "another user in waiting room"() {
-		given:
+		given: 'two mock users and a mock waitroom'
 		User u1 = Mock(User)
 		User u2 = Mock(User)
 		WaitRoom r = Mock(WaitRoom)
 
-		when:
+		when: 'a valid pid goes to waitroom'
 		def result = facade.waitRoom(pid)
 
 		then:
@@ -122,7 +122,7 @@ class UserFacadeSpec extends Specification {
 		1 * service.getPlayer(id) >> Optional.of(u2)
 		1 * waitRoomService.getFirstRoom() >> r
 		1 * waitRoomService.getUserWaiting(r) >> Optional.of(u1)
-		and: 'explicitly not enter the room but create game'
+		and: 'explicitly not enter the room but createUser game'
 		0 * waitRoomService.enter(r, u2) >> false
 		1 * gameService.newGame(u1, u2) >> Mock(Game)
 		0 * _
@@ -131,11 +131,13 @@ class UserFacadeSpec extends Specification {
 	@Unroll
 	def "create user from '#sn' name works"() {
 		when:
-		def result = facade.create(sn)
+		def result = facade.createUser(sn)
 
 		then:
-		result != null
-		result.screenName == sn
+		result.isPresent()
+		and: 'interactions'
+		1 * service.create(sn) >> Mock(User)
+		0 * _
 
 		where:
 		_ | sn
@@ -148,10 +150,13 @@ class UserFacadeSpec extends Specification {
 	@Unroll
 	def "create user from '#sn' name fails"() {
 		when:
-		facade.create(sn)
+		def result = facade.createUser(sn)
 
 		then:
-		thrown IllegalArgumentException
+		result.isEmpty()
+		and: 'interactions'
+		0 * service.create(_)
+		0 * _
 
 		where:
 		_ | sn

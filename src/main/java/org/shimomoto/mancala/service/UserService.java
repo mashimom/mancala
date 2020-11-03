@@ -20,6 +20,14 @@ class UserService {
 	@Autowired
 	UserRepository repo;
 
+	public User create(final @NotNull String screenName) {
+		final User user = User.builder()
+						.screenName(screenName)
+						.build();
+		repo.save(user);
+		return user;
+	}
+
 	public Optional<User> getPlayer(final UUID id) {
 		return repo.findById(id);
 	}
