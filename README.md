@@ -42,15 +42,18 @@ I had one implementation of the game I did earlier this year, which I adapted to
 ### The compromises
 
 1. the waiting room is an entity on database, it is a poor choice but for time constraints I am not building a queue.  
-The good solution would be to queue players that want to participate in a game, probably use the games/win counts to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
-2. A game can be created without the rematch option, it can be fixed by searching for all previous game for given pair of players, too evolved for now. So there is a known bug.
-3. In order to avoid dtos, and thus a lot of boilerplate code, there is a hack to get public ids from entities.
- 
-### Resoning
+The good solution would be to queue players that want to participate in a game, probably use the games/win rate to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
+2. The rematch option has a hibernate constraint bug that is preventing it from being stored. Anyway it was not prime ready because a user can play another game against another user without it being a rematch (win counts, etc.).  
+I will be fixing it if I have everything else finished.
+3. In order to avoid dtos, and thus a lot of boilerplate code, there is a serialization hack to get public ids from entities.  
+DTOs should not be first concern when creating a POC, they are a natural change that comes after the drift between the API aggregates and the data store entities.
+
+### Reasoning
 
 Instead of creating a game with a single user, I added the waiting room concept, which can later be used as means for leaderboard matching or to have games among a small selected group.
 
-The score is kept between two players mainly to let them keep their track record personal.
+The intention behind (defunct) rematch is for a player not only have a general score over all games regardless the opponents, but also have a specific score between a pair o players.
+
 ## How to build
 
 ```bash
