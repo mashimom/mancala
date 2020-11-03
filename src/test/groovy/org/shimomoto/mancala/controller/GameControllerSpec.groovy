@@ -97,6 +97,18 @@ class GameControllerSpec extends Specification {
 		0 * _
 	}
 
+	def "rematch fails on illegal request "() {
+		when:
+		controller.rematch('someid')
+
+		then:
+		def ex = thrown(ResponseStatusException)
+		ex.status == HttpStatus.NOT_ACCEPTABLE
+		and: 'interactions'
+		1 * facade.createRematch('someid') >> { throw new UnsupportedOperationException("facade thrown") }
+		0 * _
+	}
+
 	def "move works"() {
 		given:
 		Game g = Mock(Game)
