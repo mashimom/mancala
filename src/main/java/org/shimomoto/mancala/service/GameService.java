@@ -40,10 +40,11 @@ class GameService {
 
 	@NotNull
 	public Game createRematch(@NotNull final Game finishedGame) {
+		final Map<PlayerRole, Integer> winsByPlayer = finishedGame.getWinsByPlayer();
 		final Game game = Game.builder()
 						.playerOne(finishedGame.getPlayerOne())
 						.playerTwo(finishedGame.getPlayerTwo())
-						.winsByPlayer(finishedGame.getWinsByPlayer())
+						.winsByPlayer(winsByPlayer)
 						.build();
 		repo.save(game);
 		return game;
