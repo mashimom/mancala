@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.shimomoto.mancala.model.transfer.UserDto;
+import org.shimomoto.mancala.model.entity.User;
 import org.shimomoto.mancala.service.UserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,11 +33,11 @@ public class PlayerController {
 	@ApiResponses(value = {
 					@ApiResponse(responseCode = "200", description = "Found the player",
 									content = {@Content(mediaType = "application/json",
-													schema = @Schema(implementation = UserDto.class))}),
+													schema = @Schema(implementation = User.class))}),
 					@ApiResponse(responseCode = "404", description = "Player not found",
 									content = @Content)})
 	@GetMapping("/{pid}")
-	public UserDto fetch(@Parameter(description = "Player public id", required = true) @PathVariable final String pid) {
+	public User fetch(@Parameter(description = "Player public id", required = true) @PathVariable final String pid) {
 		return facade.getPlayer(pid)
 						.orElseThrow(() ->
 										new EntityNotFoundException(format("Unable to find player: {0}", pid)));

@@ -1,7 +1,12 @@
 package org.shimomoto.mancala.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.shimomoto.mancala.model.transfer.PublicIdSerializer;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.Entity;
@@ -15,13 +20,18 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonPropertyOrder({"pid", "screenName", "createdOn", "gameCount", "winCount"})
 @Data
 @Entity
 public class User {
+
+	@JsonProperty("pid")
+	@JsonSerialize(using = PublicIdSerializer.class)
 	@Id
 	@Builder.Default
 	UUID id = UUID.randomUUID();
 
+	@JsonIgnore
 	@Version
 	@EqualsAndHashCode.Exclude
 	@Builder.Default

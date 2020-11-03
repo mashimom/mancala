@@ -1,18 +1,20 @@
 package org.shimomoto.mancala.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.jetbrains.annotations.Nullable;
+import org.shimomoto.mancala.model.transfer.PublicIdSerializer;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Version;
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -22,21 +24,22 @@ import java.util.UUID;
 @Data
 @Entity
 public class WaitRoom {
+
+	@JsonProperty("pid")
+	@JsonSerialize(using = PublicIdSerializer.class)
 	@Id
 	@Builder.Default
 	UUID id = UUID.randomUUID();
 
+	@JsonIgnore
 	@Version
 	@EqualsAndHashCode.Exclude
 	@Builder.Default
 	Long version = null;
 
-	@NotBlank
-	String roomName;
-
-	@OneToMany
-	@Builder.Default
-	Set<User> signed = new HashSet<>();
+	@Nullable
+	@OneToOne
+	User signed;
 
 	@CreatedDate
 	@Builder.Default
