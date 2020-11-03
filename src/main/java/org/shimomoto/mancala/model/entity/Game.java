@@ -3,6 +3,7 @@ package org.shimomoto.mancala.model.entity;
 import com.codepoetics.protonpack.maps.MapStream;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonPropertyOrder({"pid", "gameStart", "endOfGame", "board", "playerOne", "playerTwo", "winsByPlayer"})
 @Data
 @Entity
 public class Game {
