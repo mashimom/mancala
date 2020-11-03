@@ -14,6 +14,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+/**
+ * It concerns the actions that change state of the board and the turn passing conditions.
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @Service
@@ -108,7 +111,7 @@ public class BoardService {
 						.collect();
 	}
 
-	public void endGameMove(final Board board) {
+	public void finalizeGame(final Board board) {
 		board.getPits()[6] = Arrays.stream(board.getPits()).limit(7).sum();
 		IntStream.range(0, 6)
 						.forEach(i -> board.getPits()[i] = 0);

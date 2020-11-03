@@ -39,11 +39,12 @@ public class GameFacade {
 	@Autowired
 	BoardService boardService;
 
+	@Autowired
+	UserService userService;
+
 	@NotNull
 	public Game createGame(final @NotNull User playerOne, final @NotNull User playerTwo) {
-		final Game game = service.newGame(playerOne, playerTwo);
-		service.save(game);
-		return game;
+		return service.newGame(playerOne, playerTwo);
 	}
 
 	@NotNull
@@ -54,9 +55,7 @@ public class GameFacade {
 			throw new UnsupportedOperationException("match has not ended");
 		}
 
-		final Game rematch = service.createRematch(game);
-		service.save(rematch);
-		return rematch;
+		return service.createRematch(game);
 	}
 
 	@NotNull
@@ -76,20 +75,36 @@ public class GameFacade {
 		final Game game = getGameById(id);
 		final Board board = game.getBoard();
 
-		if (boardService.isEndOfGame(board)) {
+		if (service.isEndOfGame(game)) {
 			throw new UnsupportedOperationException("The game has ended and all moves are illegal.");
 		}
 		if (!boardService.isLegalMove(board, playerRole, position)) {
-			throw new UnsupportedOperationException(format("The requested move {} from {} is not legal", playerRole, position));
+			throw new UnsupportedOperationException(format("The requested move {0} from {1} is not legal", playerRole, position));
 		}
 		boardService.move(board, playerRole, position);
+		//if move led to end of game
 		if (boardService.isEndOfGame(board)) {
-			boardService.endGameMove(board);
-			final Optional<PlayerRole> winner = boardService.findWinner(board);
-			service.increaseScore(game, winner.orElse(null));
-			service.setEndOfGame(game);
+			boardService.finalizeGame(board);
+			endOfGameChanges(game, boardService.findWinner(board));
 		}
 		service.save(game);
 		return game;
+	}
+
+	private void endOfGameChanges(Game game, Optional<PlayerRole> winner) {
+		service.increaseScore(game, winner.orElse(null));
+		service.setEndOfGame(game);
+		if (winner.isPresent()) {
+			if (winner.get() == PlayerRole.ONE) {
+				userService.scoreWin(game.getPlayerOne());
+				userService.scoreLoose(game.getPlayerTwo());
+			} else {
+				userService.scoreWin(game.getPlayerTwo());
+				userService.scoreLoose(game.getPlayerOne());
+			}
+		} else {
+			userService.scoreDraw(game.getPlayerOne());
+			userService.scoreDraw(game.getPlayerTwo());
+		}
 	}
 }

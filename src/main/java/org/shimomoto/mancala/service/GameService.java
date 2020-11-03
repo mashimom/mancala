@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.model.entity.User;
+import org.shimomoto.mancala.model.util.PublicIdUtils;
 import org.shimomoto.mancala.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,19 +30,23 @@ class GameService {
 	GameRepository repo;
 
 	public Game newGame(@NotNull final User playerOne, @NotNull final User playerTwo) {
-		return Game.builder()
+		final Game game = Game.builder()
 						.playerOne(playerOne)
 						.playerTwo(playerTwo)
 						.build();
+		repo.save(game);
+		return game;
 	}
 
 	@NotNull
 	public Game createRematch(@NotNull final Game finishedGame) {
-		return Game.builder()
+		final Game game = Game.builder()
 						.playerOne(finishedGame.getPlayerOne())
 						.playerTwo(finishedGame.getPlayerTwo())
 						.winsByPlayer(finishedGame.getWinsByPlayer())
 						.build();
+		repo.save(game);
+		return game;
 	}
 
 	public Iterable<Game> getAll() {
@@ -50,7 +55,7 @@ class GameService {
 
 	public Optional<Game> getGame(@Nullable final String id) {
 		return Optional.ofNullable(id)
-						.filter(s -> !s.isBlank())
+						.flatMap(PublicIdUtils::stringDecode)
 						.flatMap(repo::findById);
 	}
 
@@ -89,5 +94,28 @@ class GameService {
 
 	public void save(@NotNull final Game game) {
 		repo.save(game);
+	}
+
+	public Map<PlayerRole, User> getPlayers(final Game game) {
+		return Map.of(PlayerRole.ONE, game.getPlayerOne(),
+						PlayerRole.TWO, game.getPlayerTwo());
+	}
+
+	public User getPlayerByRole(final @NotNull Game game, final @NotNull PlayerRole playerRole) {
+		return switch (playerRole) {
+			case ONE -> game.getPlayerOne();
+			case TWO -> game.getPlayerTwo();
+		};
+	}
+
+	public User getOpponentOf(final @NotNull Game game, final @NotNull PlayerRole playerRole) {
+		return switch (playerRole) {
+			case ONE -> game.getPlayerTwo();
+			case TWO -> game.getPlayerOne();
+		};
+	}
+
+	public boolean isEndOfGame(final @NotNull Game game) {
+		return game.isEndOfGame();
 	}
 }
