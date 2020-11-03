@@ -1,5 +1,6 @@
 package org.shimomoto.mancala.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.shimomoto.mancala.model.domain.PlayerRole;
@@ -10,6 +11,7 @@ import javax.persistence.Embeddable;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonPropertyOrder({"currentPlayer", "turnCount", "pits"})
 @Data
 @Embeddable
 public class Board {
