@@ -51,7 +51,7 @@ public class GameFacade {
 	public Game createRematch(final String id) {
 		final Game game = getGameById(id);
 
-		if (!boardService.isEndOfGame(game.getBoard())) {
+		if (!service.isEndOfGame(game)) {
 			throw new UnsupportedOperationException("match has not ended");
 		}
 

@@ -63,7 +63,6 @@ class GameFacadeSpec extends Specification {
 	def "createRematch works"() {
 		given:
 		Game g = Mock(Game)
-		Board b = Mock(Board)
 		Game r = Mock(Game)
 
 		when:
@@ -74,8 +73,7 @@ class GameFacadeSpec extends Specification {
 		result == r
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		1 * g.board >> b
-		1 * boardService.isEndOfGame(b) >> true
+		1 * service.isEndOfGame(g) >> true
 		1 * service.createRematch(g) >> r
 		0 * _
 	}
@@ -94,7 +92,6 @@ class GameFacadeSpec extends Specification {
 	def "createRematch fails on unfinished game"() {
 		given:
 		Game g = Mock(Game)
-		Board b = Mock(Board)
 
 		when:
 		facade.createRematch('someid')
@@ -103,14 +100,14 @@ class GameFacadeSpec extends Specification {
 		thrown UnsupportedOperationException
 		and: 'interactions'
 		1 * service.getGame('someid') >> Optional.of(g)
-		1 * g.getBoard() >> b
-		1 * boardService.isEndOfGame(b) >> false
+		1 * service.isEndOfGame(g) >> false
 		0 * _
 	}
 
 	def "getGameById works"() {
 		given:
 		Game g = Mock()
+
 		when:
 		def result = facade.getGameById('thatid')
 
