@@ -9,7 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.model.entity.User;
+import org.shimomoto.mancala.service.GameFacade;
 import org.shimomoto.mancala.service.UserFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import static java.text.MessageFormat.format;
 
@@ -28,6 +32,9 @@ public class PlayerController {
 
 	@Autowired
 	UserFacade facade;
+
+	@Autowired
+	GameFacade gameFacade;
 
 	@Operation(summary = "Get player by id")
 	@ApiResponses(value = {
@@ -54,5 +61,22 @@ public class PlayerController {
 		if (!facade.waitRoom(pid)) {
 			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "Player already waiting for a new game");
 		}
+	}
+
+	@Operation(summary = "Get games by player id")
+	@ApiResponses(value = {
+					@ApiResponse(responseCode = "200", description = "Found player's games",
+									content = {@Content(mediaType = "application/json",
+													schema = @Schema(implementation = Game.class))}),
+					@ApiResponse(responseCode = "404", description = "Player not found",
+									content = @Content)})
+	@GetMapping("/{pid}/games")
+	public Stream<Game> listGames(@Parameter(description = "Player public id", required = true) @PathVariable final String pid) {
+		final Comparator<Game> gameSortOrder = Comparator
+						.comparing(Game::isEndOfGame)
+						.thenComparing(Game::getGameStart);
+
+		return gameFacade.getAllByUser(pid)
+						.sorted(gameSortOrder);
 	}
 }
