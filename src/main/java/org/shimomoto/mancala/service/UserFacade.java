@@ -79,6 +79,7 @@ public class UserFacade {
 			return false;
 		}
 		gameService.newGame(signed.get(), user);
+		waitRoomService.delete(room);
 		return true;
 	}
 
