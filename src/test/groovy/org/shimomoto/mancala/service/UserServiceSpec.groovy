@@ -11,6 +11,18 @@ class UserServiceSpec extends Specification {
 	@Subject
 	UserService service = new UserService(repository)
 
+	def "create works"() {
+		when:
+		def result = service.create("Goku")
+
+		then:
+		result != null
+		result.screenName == "Goku"
+		and: 'interactions'
+		1 * repository.save(_) >> { User u -> u }
+		0 * _
+	}
+
 	def "getPlayer works"() {
 		given:
 		UUID id = UUID.fromString('34b08922-8b1d-4378-90cb-18857e012bbc')

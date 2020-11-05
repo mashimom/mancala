@@ -8,6 +8,7 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import javax.persistence.EntityNotFoundException
+import java.util.stream.Collectors
 
 class GameFacadeSpec extends Specification {
 	GameService service = Mock(GameService)
@@ -282,6 +283,64 @@ class GameFacadeSpec extends Specification {
 		1 * service.setEndOfGame(g)
 		1 * userService.scoreDraw(p1)
 		1 * userService.scoreDraw(p2)
+		0 * _
+	}
+
+	def "getAllByUser works"() {
+		given:
+		UUID id = UUID.fromString('79cde6b5-4539-4fc3-9614-b83bfa092f06')
+		String pid = 'ec3mtUU5T8OWFLg7-gkvBg'
+		User p1 = Mock(User)
+		User p2 = Mock(User)
+		def games = (1..2).collect {
+			Game.builder()
+							.playerOne(p1)
+							.playerTwo(p2)
+							.build()
+		}
+		def otherGame = Game.builder()
+						.playerOne(Mock(User))
+						.playerTwo(Mock(User))
+						.build()
+		games << otherGame
+
+		when:
+		def result = facade.getAllByUser(pid).collect(Collectors.toList())
+
+		then:
+		result.size() == 2
+		result == (games - otherGame)
+		and: 'interactions'
+		1 * userService.getPlayer(id) >> Optional.of(p1)
+		1 * service.getAll() >> games
+		1 * service.isPlayerOn(games[0], p1) >> true
+		1 * service.isPlayerOn(games[1], p1) >> true
+		1 * service.isPlayerOn(games[2], p1) >> false
+		0 * _
+	}
+
+	def "getAllByUser fails on invalid id"() {
+		when:
+		facade.getAllByUser('bogus')
+
+		then:
+		thrown EntityNotFoundException
+		and: 'interactions'
+		0 * _
+	}
+
+	def "getAllByUser fails user not found"() {
+		given:
+		UUID id = UUID.fromString('79cde6b5-4539-4fc3-9614-b83bfa092f06')
+		String pid = 'ec3mtUU5T8OWFLg7-gkvBg'
+
+		when:
+		facade.getAllByUser(pid)
+
+		then:
+		thrown EntityNotFoundException
+		and: 'interaction'
+		1 * userService.getPlayer(id) >> Optional.empty()
 		0 * _
 	}
 }
