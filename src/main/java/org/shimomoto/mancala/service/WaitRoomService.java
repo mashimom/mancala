@@ -59,4 +59,8 @@ class WaitRoomService {
 		}
 		return signed;
 	}
+
+	public void delete(final @NotNull WaitRoom room) {
+		repository.delete(room);
+	}
 }

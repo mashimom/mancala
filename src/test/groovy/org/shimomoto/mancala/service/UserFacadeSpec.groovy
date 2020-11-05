@@ -125,6 +125,7 @@ class UserFacadeSpec extends Specification {
 		and: 'explicitly not enter the room but createUser game'
 		0 * waitRoomService.enter(r, u2) >> false
 		1 * gameService.newGame(u1, u2) >> Mock(Game)
+		1 * waitRoomService.delete(r)
 		0 * _
 	}
 
