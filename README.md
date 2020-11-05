@@ -26,12 +26,12 @@ I had one implementation of the game I did earlier this year, which I adapted to
     + [ ] add authorization
         - pass player id to endpoint
 * [x] wait room for players, join 2 *different* players in a game
-* [ ] leaderboard to challenge other players
+* [ ] leaderboard to challenge other players (optional)
 * [ ] list ongoing and finished games for player
 * [x] open ongoing game
 * [x] only moves own player game and pit
 * [ ] only access own player's stats or games
-* [ ] check other player's stats (optional?)
+* [ ] check other player's stats (optional)
 * [ ] player gets message when it is not their turn yet (optional?)
 * [ ] integration tests (postman on docker?)
 * [x] add data store
@@ -42,9 +42,9 @@ I had one implementation of the game I did earlier this year, which I adapted to
 ### The compromises
 
 1. the waiting room is an entity on database, it is a poor choice but for time constraints I am not building a queue.  
-The good solution would be to queue players that want to participate in a game, probably use the games/win rate to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
-2. The rematch option has a hibernate constraint bug that is preventing it from being stored. Anyway it was not prime ready because a user can play another game against another user without it being a rematch (win counts, etc.).  
-I will be fixing it if I have everything else finished.
+The good solution would be to queue players that want to participate in a game, probably use the `wins/games` rate to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
+2. The rematch option has a JPA/Hibernate constraint bug that is preventing it from being stored. Anyway it was not prime ready because a user can play another game against another user without it being a rematch (win counts, etc.).  
+I will be fixing it, if I have everything else finished.
 3. In order to avoid dtos, and thus a lot of boilerplate code, there is a serialization hack to get public ids from entities.  
 DTOs should not be first concern when creating a POC, they are a natural change that comes after the drift between the API aggregates and the data store entities.
 
@@ -52,7 +52,7 @@ DTOs should not be first concern when creating a POC, they are a natural change 
 
 Instead of creating a game with a single user, I added the waiting room concept, which can later be used as means for leaderboard matching or to have games among a small selected group.
 
-The intention behind (defunct) rematch is for a player not only have a general score over all games regardless the opponents, but also have a specific score between a pair o players.
+The intention behind _(defunct)_ rematch is for a player not only have a general score over all games regardless the opponents, but also have a specific score between a pair of players.
 
 ## How to build
 
@@ -69,11 +69,15 @@ gradle && gradle bootRun
 
 ## Conventions
 
-Testing with Spock first for readability, also to save time and portability with best in class reports found at `build/spock-reports/index.html`.
+Testing with Spock first for readability, also to save time and portability with best in class reports.
 
 ### Test documentation
 
-Run tests (`gradle check`) then check output at [build/spock-reports/index.html](./build/spock-reports/index.html)
+Run tests (`gradle check`) then check output at [./build/reports/spock-reports/test](./build/reports/spock-reports/test/index.html) and [./build/reports/spock-reports/integrationTest](./build/reports/spock-reports/integrationTest/index.html)
+
+### Coverage report
+
+Run tests (`gradle check`) then check JaCoCo output at [./build/reports/jacoco/test/html](./build/reports/jacoco/test/html/index.html)
  
 ### Tests
 
