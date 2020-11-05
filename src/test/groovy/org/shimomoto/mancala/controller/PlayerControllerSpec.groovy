@@ -1,6 +1,8 @@
 package org.shimomoto.mancala.controller
 
+import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.model.entity.User
+import org.shimomoto.mancala.service.GameFacade
 import org.shimomoto.mancala.service.UserFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -8,13 +10,15 @@ import spock.lang.Specification
 import spock.lang.Subject
 
 import javax.persistence.EntityNotFoundException
+import java.util.stream.Collectors
 
 class PlayerControllerSpec extends Specification {
+	GameFacade gameFacade = Mock(GameFacade)
 
 	UserFacade facade = Mock(UserFacade)
 
 	@Subject
-	PlayerController controller = new PlayerController(facade)
+	PlayerController controller = new PlayerController(facade, gameFacade)
 
 	UUID id = UUID.fromString('3b90eec8-21cf-4d38-8de7-468c470c43b0')
 	String pid = 'O5DuyCHPTTiN50aMRwxDsA'
@@ -76,5 +80,24 @@ class PlayerControllerSpec extends Specification {
 		ex.status == HttpStatus.NOT_ACCEPTABLE
 		1 * facade.waitRoom(pid) >> false
 		0 * _
+	}
+
+	def "listGames works"() {
+		given:
+		def games = (1..2).collect {
+			Game.builder()
+							.playerOne(Mock(User))
+							.playerTwo(Mock(User))
+							.build()
+		}.reverse()
+
+		when:
+		def result = controller.listGames('someid').collect(Collectors.toList())
+
+		then:
+		result.toSet() == games.toSet()
+		result == games.reverse()
+		and: 'interactions'
+		1 * gameFacade.getAllByUser('someid') >> games.stream()
 	}
 }
