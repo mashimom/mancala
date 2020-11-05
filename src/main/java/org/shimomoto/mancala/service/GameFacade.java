@@ -10,12 +10,14 @@ import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.entity.Board;
 import org.shimomoto.mancala.model.entity.Game;
 import org.shimomoto.mancala.model.entity.User;
+import org.shimomoto.mancala.model.util.PublicIdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.text.MessageFormat.format;
@@ -91,7 +93,7 @@ public class GameFacade {
 		return game;
 	}
 
-	private void endOfGameChanges(Game game, Optional<PlayerRole> winner) {
+	private void endOfGameChanges(final @NotNull Game game, final @NotNull Optional<PlayerRole> winner) {
 		service.increaseScore(game, winner.orElse(null));
 		service.setEndOfGame(game);
 		if (winner.isPresent()) {
@@ -106,5 +108,18 @@ public class GameFacade {
 			userService.scoreDraw(game.getPlayerOne());
 			userService.scoreDraw(game.getPlayerTwo());
 		}
+	}
+
+	public Stream<Game> getAllByUser(final String pid) {
+		final User user = Optional.ofNullable(pid)
+						.flatMap(PublicIdUtils::stringDecode)
+						.flatMap(userService::getPlayer)
+						.orElseThrow(() -> new EntityNotFoundException(format("Unable to find user for pid {0}", pid)));
+
+		final Predicate<Game> isPlayerOn =
+						(Game g) -> service.isPlayerOn(g, user);
+
+		return getAll()
+						.filter(isPlayerOn);
 	}
 }

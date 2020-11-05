@@ -274,4 +274,31 @@ class GameServiceSpec extends Specification {
 		and:
 		service.getOpponentOf(game, PlayerRole.TWO) == p1
 	}
+
+	def "isPlayerOn accepts"() {
+		given:
+		User p1 = Mock(User)
+		User p2 = Mock(User)
+		Game game = Game.builder()
+						.playerOne(p1)
+						.playerTwo(p2)
+						.build()
+
+		expect:
+		service.isPlayerOn(game, p1)
+		service.isPlayerOn(game, p2)
+	}
+
+	def "isPlayerOn rejects"() {
+		given:
+		User p1 = Mock(User)
+		User p2 = Mock(User)
+		Game game = Game.builder()
+						.playerOne(p1)
+						.playerTwo(p2)
+						.build()
+
+		expect:
+		!service.isPlayerOn(game, Mock(User))
+	}
 }

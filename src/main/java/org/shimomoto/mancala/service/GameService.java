@@ -119,4 +119,8 @@ class GameService {
 	public boolean isEndOfGame(final @NotNull Game game) {
 		return game.isEndOfGame();
 	}
+
+	public boolean isPlayerOn(final @NotNull Game game, final User player) {
+		return game.getPlayerOne().equals(player) || game.getPlayerTwo().equals(player);
+	}
 }
