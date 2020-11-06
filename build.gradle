@@ -136,5 +136,9 @@ tasks.named("dependencyUpdates").configure {
 		}
 	}
 }
+jib {
+	from.image = 'openjdk:14-jdk-alpine'
+	to.tags = [version,'latest']
+	to.image = "${group}/${rootProject.name}"
+}
 
-jib.from.image = 'openjdk:14-jdk-alpine'
