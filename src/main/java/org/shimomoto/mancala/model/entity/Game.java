@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.jetbrains.annotations.NotNull;
 import org.shimomoto.mancala.model.domain.PlayerRole;
 import org.shimomoto.mancala.model.transfer.PublicIdSerializer;
 import org.springframework.data.annotation.CreatedDate;
@@ -49,13 +48,9 @@ public class Game {
 	@Builder.Default
 	boolean endOfGame = false;
 
-	@NotNull
-	@OneToOne(optional = false)
-	User playerOne;
-
-	@NotNull
-	@OneToOne(optional = false)
-	User playerTwo;
+	@ManyToMany
+	@MapKeyEnumerated(EnumType.STRING)
+	Map<PlayerRole, User> playersByRole;
 
 	@ElementCollection(fetch = FetchType.EAGER)
 	@MapKeyEnumerated(EnumType.STRING)

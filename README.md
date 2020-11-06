@@ -1,10 +1,16 @@
-# Mancala assignment 
+# Kalah/Mancala assignment 
 
 The task [assignment](./Coding_Challenge.pdf)
 
 ![Java CI with Gradle](https://github.com/mashimom/mancala/workflows/Java%20CI%20with%20Gradle/badge.svg?branch=master)
 
 I had one implementation of the game I did earlier this year, which I adapted to have players on separate machines.
+
+The original design split the game in three parts:
+- Board: actual rules, mechanics and status
+- Game: transactional game aspects, isolates players from the game board
+- Player: here for the time restriction it is internally user and externally player. Which can be later split, but conceptually a player in this game maps to user.
+
 
 ## The plan
 
@@ -43,9 +49,8 @@ I had one implementation of the game I did earlier this year, which I adapted to
 
 1. the waiting room is an entity on database, it is a poor choice but for time constraints I am not building a queue.  
 The good solution would be to queue players that want to participate in a game, probably use the `wins/games` rate to tier players in different queues for better experience. Then an async process would consume pairs of players from the queue and create the games.
-2. The rematch option has a JPA/Hibernate constraint bug that is preventing it from being stored. Anyway it was not prime ready because a user can play another game against another user without it being a rematch (win counts, etc.).  
-I will be fixing it, if I have everything else finished.
-3. In order to avoid dtos, and thus a lot of boilerplate code, there is a serialization hack to get public ids from entities.  
+
+2. In order to avoid dtos, and thus a lot of boilerplate code, there is a serialization hack to get public ids from entities.  
 DTOs should not be first concern when creating a POC, they are a natural change that comes after the drift between the API aggregates and the data store entities.
 
 ### Reasoning

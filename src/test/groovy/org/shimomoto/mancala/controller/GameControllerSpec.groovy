@@ -5,7 +5,6 @@ import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.service.GameFacade
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -73,7 +72,6 @@ class GameControllerSpec extends Specification {
 		0 * _
 	}
 
-	@Ignore
 	def "rematch works"() {
 		given:
 		Game g = Mock(Game)
@@ -88,7 +86,6 @@ class GameControllerSpec extends Specification {
 		0 * _
 	}
 
-	@Ignore
 	def "rematch fails on invalid id - LITTLE value"() {
 		when:
 		controller.rematch('bogus')
@@ -100,7 +97,6 @@ class GameControllerSpec extends Specification {
 		0 * _
 	}
 
-	@Ignore
 	def "rematch fails on illegal request "() {
 		when:
 		controller.rematch('someid')
