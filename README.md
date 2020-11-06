@@ -61,16 +61,20 @@ The intention behind _(defunct)_ rematch is for a player not only have a general
 
 ## How to build
 
+> requires JDK 14, you can get it with https://sdkman.io/install
+
 ```bash
 gradle 
 ```
 ## How to run
 
-### From sources
+### _TL,DR;_ From sources
 
 ```bash
 gradle && gradle bootRun
 ```
+
+> _NOTE:_ Other options bellow in deployments 
 
 ## Conventions
 
@@ -86,9 +90,83 @@ Run tests (`gradle check`) then check JaCoCo output at [./build/reports/jacoco/t
  
 ### Tests
 
-* Aim on high unit test coverage for fast builds and some Integration test coverage for correctness when multiple actions and state are relevant.
+* Aim on high unit test coverage for fast builds and some Integration test coverage for as smoke tests.
 * single letter variables denote a mock or that the variable is not relevant but required to process
 
-## Deployment
+## Manual Kubernetes deployment with minikube
 
+Just a demonstration, for full deployment use the next section on Kubernetes config deploy.
+
+> NOTE: using minikube and jib, commands may differ on a non-linux env
+
+1. Start minikube:
+    ```
+    minikube start
+    ```
+   
+2. Enable minikube to use docker daemon's images:
+    ```
+    eval $(minikube docker-env)
+    ```
+   
+3. Build an image (preferably checkout a tag):
+    ```
+    gradle && gradle jibDockerBuild
+    ``` 
+
+4. Check if you see new images one with a version and the other as latest :
+    ```
+    docker images | grep 'org.shimomoto'
+    ``` 
+
+5. Create a pod:
+    1. _OPTIONAL:_ If you are doing this a second time you may need to clean up first: 
+        ```
+        kubectl delete pod/mancala
+        ```
+   2. Create the pod:
+       ```
+       kubectl run mancala \
+         --image=org.shimomoto/mancala:latest \
+         --port=8080 \
+         --image-pull-policy Never
+       ```
+   
+6. Verify if all is correct:
+
+    1. deployments, probably empty:
+        ```
+        kubectl get deployments
+        ```
+   
+    2. pod should be running:
+        ```
+        kubectl get pods
+        ```
+       
+7. Expose the port to the app:
+   ```
+   kubectl expose pod mancala --type=NodePort
+   ```
+   1. check which port was open on local
+       ```
+       kubectl get services
+       ```
+
+8. Access the service:
+   ```
+   minikube service mancala
+   ```
+   
+    1. On the browser, the user and password are from `resources/application.yml`, used to be: 
+        + user: `marco`
+        + pwd: `polo`
+        
+    2. You should see a banner page.
+    
+9. Once no longer needed:
+    ```
+    kubectl delete service/mancala pod/mancala
+    docker rmi -f org.shimomoto/mancala:latest org.shimomoto/mancala:$(git describe --dirty=.dirty)
+    ```
 ---
