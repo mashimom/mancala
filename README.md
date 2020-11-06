@@ -33,7 +33,7 @@ The original design split the game in three parts:
         - pass player id to endpoint
 * [x] wait room for players, join 2 *different* players in a game
 * [ ] leaderboard to challenge other players (optional)
-* [ ] list ongoing and finished games for player
+* [x] list ongoing and finished games for player
 * [x] open ongoing game
 * [x] only moves own player game and pit
 * [ ] only access own player's stats or games
