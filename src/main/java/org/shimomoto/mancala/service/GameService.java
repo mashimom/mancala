@@ -30,9 +30,10 @@ class GameService {
 	GameRepository repo;
 
 	public Game newGame(@NotNull final User playerOne, @NotNull final User playerTwo) {
+		final Map<PlayerRole, User> playersByRole = Map.of(PlayerRole.ONE, playerOne,
+						PlayerRole.TWO, playerTwo);
 		final Game game = Game.builder()
-						.playerOne(playerOne)
-						.playerTwo(playerTwo)
+						.playersByRole(playersByRole)
 						.build();
 		repo.save(game);
 		return game;
@@ -41,8 +42,7 @@ class GameService {
 	@NotNull
 	public Game createRematch(@NotNull final Game finishedGame) {
 		final Game game = Game.builder()
-						.playerOne(finishedGame.getPlayerOne())
-						.playerTwo(finishedGame.getPlayerTwo())
+						.playersByRole(Map.copyOf(finishedGame.getPlayersByRole()))
 						.winsByPlayer(Map.copyOf(finishedGame.getWinsByPlayer()))
 						.build();
 		repo.save(game);
@@ -97,22 +97,15 @@ class GameService {
 	}
 
 	public Map<PlayerRole, User> getPlayers(final Game game) {
-		return Map.of(PlayerRole.ONE, game.getPlayerOne(),
-						PlayerRole.TWO, game.getPlayerTwo());
+		return Map.copyOf(game.getPlayersByRole());
 	}
 
 	public User getPlayerByRole(final @NotNull Game game, final @NotNull PlayerRole playerRole) {
-		return switch (playerRole) {
-			case ONE -> game.getPlayerOne();
-			case TWO -> game.getPlayerTwo();
-		};
+		return game.getPlayersByRole().get(playerRole);
 	}
 
 	public User getOpponentOf(final @NotNull Game game, final @NotNull PlayerRole playerRole) {
-		return switch (playerRole) {
-			case ONE -> game.getPlayerTwo();
-			case TWO -> game.getPlayerOne();
-		};
+		return getPlayerByRole(game, playerRole.opponent());
 	}
 
 	public boolean isEndOfGame(final @NotNull Game game) {
@@ -120,6 +113,6 @@ class GameService {
 	}
 
 	public boolean isPlayerOn(final @NotNull Game game, final User player) {
-		return game.getPlayerOne().equals(player) || game.getPlayerTwo().equals(player);
+		return game.getPlayersByRole().containsValue(player);
 	}
 }

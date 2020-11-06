@@ -8,6 +8,8 @@ import org.shimomoto.mancala.repository.GameRepository
 import spock.lang.Specification
 import spock.lang.Subject
 
+import java.time.LocalDateTime
+
 class GameServiceSpec extends Specification {
 	GameRepository repo = Mock(GameRepository)
 
@@ -19,9 +21,11 @@ class GameServiceSpec extends Specification {
 
 	def "getAll with some results"() {
 		given:
-
-		def games = [Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build(),
-		             Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()]
+		def games = (1..2).collect {
+			Game.builder()
+							.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
+							.build()
+		}
 
 		when:
 		def result = service.getAll()
@@ -102,12 +106,9 @@ class GameServiceSpec extends Specification {
 
 		then:
 		result != null
-		result.playerOne == p1
-		result.playerTwo == p2
-		with(result) {
-			playerOne == p1
-			playerTwo == p2
-		}
+		!result.isEndOfGame()
+		result.gameStart < LocalDateTime.now()
+		result.playersByRole == [(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]
 		and: 'interactions'
 		1 * repo.save(_ as Game)
 		0 * _
@@ -134,6 +135,7 @@ class GameServiceSpec extends Specification {
 		Game g = Mock(Game)
 		User p1 = Mock(User)
 		User p2 = Mock(User)
+		def players = [(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]
 		def gameScore = [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 
 		when:
@@ -144,13 +146,12 @@ class GameServiceSpec extends Specification {
 		with(result) {
 			board == Board.builder().build()
 			!endOfGame
-			playerOne == p1
-			playerTwo == p2
+			playersByRole == players
 			winsByPlayer == gameScore
+			gameStart < LocalDateTime.now()
 		}
 		and: 'interactions'
-		1 * g.playerOne >> p1
-		1 * g.playerTwo >> p2
+		1 * g.getPlayersByRole() >> players
 		1 * g.winsByPlayer >> [(PlayerRole.ONE): 77, (PlayerRole.TWO): 212]
 		1 * repo.save(_ as Game)
 		0 * _
@@ -159,8 +160,7 @@ class GameServiceSpec extends Specification {
 	def "increaseScore works"() {
 		given:
 		Game g = Game.builder()
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.winsByPlayer([(PlayerRole.ONE): 0, (PlayerRole.TWO): 0])
 						.build()
 
@@ -192,8 +192,7 @@ class GameServiceSpec extends Specification {
 	def "setEndOfGame works"() {
 		given:
 		Game g = Game.builder()
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.endOfGame(false)
 						.build()
 
@@ -245,7 +244,7 @@ class GameServiceSpec extends Specification {
 		given:
 		User p1 = Mock(User)
 		User p2 = Mock(User)
-		Game game = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game game = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		expect:
 		service.getPlayers(game) == [(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]
@@ -255,7 +254,7 @@ class GameServiceSpec extends Specification {
 		given:
 		User p1 = Mock(User)
 		User p2 = Mock(User)
-		Game game = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game game = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		expect:
 		service.getPlayerByRole(game, PlayerRole.ONE) == p1
@@ -267,7 +266,7 @@ class GameServiceSpec extends Specification {
 		given:
 		User p1 = Mock(User)
 		User p2 = Mock(User)
-		Game game = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game game = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		expect:
 		service.getOpponentOf(game, PlayerRole.ONE) == p2
@@ -280,8 +279,7 @@ class GameServiceSpec extends Specification {
 		User p1 = Mock(User)
 		User p2 = Mock(User)
 		Game game = Game.builder()
-						.playerOne(p1)
-						.playerTwo(p2)
+						.playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2])
 						.build()
 
 		expect:
@@ -294,8 +292,7 @@ class GameServiceSpec extends Specification {
 		User p1 = Mock(User)
 		User p2 = Mock(User)
 		Game game = Game.builder()
-						.playerOne(p1)
-						.playerTwo(p2)
+						.playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2])
 						.build()
 
 		expect:

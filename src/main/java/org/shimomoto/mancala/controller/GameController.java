@@ -64,12 +64,11 @@ public class GameController {
 									content = @Content)})
 	@PostMapping("/{id}/rematch")
 	public Game rematch(@Parameter(description = "Game id") @PathVariable final String id) {
-		throw new ResponseStatusException(HttpStatus.METHOD_NOT_ALLOWED, "Functionality was disabled");
-//		try {
-//			return facade.createRematch(id);
-//		} catch (final UnsupportedOperationException e) {
-//			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
-//		}
+		try {
+			return facade.createRematch(id);
+		} catch (final UnsupportedOperationException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
+		}
 	}
 
 	@Operation(summary = "Make a move, invalid moves have no effect")

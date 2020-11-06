@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -62,7 +63,12 @@ public class GameFacade {
 
 	@NotNull
 	public Stream<Game> getAll() {
-		return StreamUtils.stream(service.getAll());
+		final Comparator<Game> gameSortOrder = Comparator
+						.comparing(Game::isEndOfGame)
+						.thenComparing(Game::getGameStart);
+
+		return StreamUtils.stream(service.getAll())
+						.sorted(gameSortOrder);
 	}
 
 	@NotNull
@@ -96,18 +102,15 @@ public class GameFacade {
 	private void endOfGameChanges(final @NotNull Game game, final @NotNull Optional<PlayerRole> winner) {
 		service.increaseScore(game, winner.orElse(null));
 		service.setEndOfGame(game);
-		if (winner.isPresent()) {
-			if (winner.get() == PlayerRole.ONE) {
-				userService.scoreWin(game.getPlayerOne());
-				userService.scoreLoose(game.getPlayerTwo());
-			} else {
-				userService.scoreWin(game.getPlayerTwo());
-				userService.scoreLoose(game.getPlayerOne());
-			}
-		} else {
-			userService.scoreDraw(game.getPlayerOne());
-			userService.scoreDraw(game.getPlayerTwo());
+		if (winner.isEmpty()) {
+			userService.scoreDraw(service.getPlayerByRole(game, PlayerRole.ONE));
+			userService.scoreDraw(service.getPlayerByRole(game, PlayerRole.TWO));
+			return;
 		}
+		userService.scoreWin(service.getPlayerByRole(game, winner.get()));
+		userService.scoreLoose(service.getOpponentOf(game, winner.get()));
+		//noinspection UnnecessaryReturnStatement
+		return;
 	}
 
 	public Stream<Game> getAllByUser(final String pid) {

@@ -1,5 +1,6 @@
 package org.shimomoto.mancala.controller
 
+import org.shimomoto.mancala.model.domain.PlayerRole
 import org.shimomoto.mancala.model.entity.Game
 import org.shimomoto.mancala.model.entity.User
 import org.shimomoto.mancala.service.GameFacade
@@ -84,18 +85,18 @@ class PlayerControllerSpec extends Specification {
 
 	def "listGames works"() {
 		given:
-		def games = (1..2).collect {
+		def games = (1..3).collect {
 			Game.builder()
-							.playerOne(Mock(User))
-							.playerTwo(Mock(User))
+							.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 							.build()
-		}.reverse()
+		}.reverse() //so that creation date is reversed
 
 		when:
 		def result = controller.listGames('someid').collect(Collectors.toList())
 
 		then:
 		result.toSet() == games.toSet()
+		and: 'sorted from original order to now by status and date'
 		result == games.reverse()
 		and: 'interactions'
 		1 * gameFacade.getAllByUser('someid') >> games.stream()

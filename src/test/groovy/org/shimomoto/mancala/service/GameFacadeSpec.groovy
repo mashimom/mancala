@@ -29,15 +29,22 @@ class GameFacadeSpec extends Specification {
 	}
 
 	def "getAll works for 2 entries"() {
+		given:
+		def games = (1..3).collect {
+			Game.builder()
+							.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
+							.build()
+		}
+
 		when:
 		def result = facade.getAll()
 
 		then:
 		result != null
-		result.count() == 2
+		result.count() == 3
 		and: 'interactions'
-		1 * service.getAll() >> [Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build(),
-		                         Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()]
+
+		1 * service.getAll() >> games
 		0 * _
 	}
 
@@ -46,8 +53,7 @@ class GameFacadeSpec extends Specification {
 		def p1 = Mock(User)
 		def p2 = Mock(User)
 		def g = Game.builder()
-						.playerOne(p1)
-						.playerTwo(p2)
+						.playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2])
 						.build()
 
 		when:
@@ -132,7 +138,9 @@ class GameFacadeSpec extends Specification {
 
 	def "move works"() {
 		given:
-		Game g = Game.builder().playerOne(Mock(User)).playerTwo(Mock(User)).build()
+		Game g = Game.builder()
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
+						.build()
 		when:
 		def result = facade.move('someid', PlayerRole.TWO, 4i)
 
@@ -159,8 +167,7 @@ class GameFacadeSpec extends Specification {
 						.build()
 		Game game = Game.builder()
 						.board(board)
-						.playerOne(p1)
-						.playerTwo(p2)
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.build()
 		when:
 		def result = facade.move('someid', PlayerRole.ONE, 5i)
@@ -178,7 +185,9 @@ class GameFacadeSpec extends Specification {
 		1 * boardService.findWinner(board) >> Optional.of(PlayerRole.ONE)
 		1 * service.increaseScore(game, PlayerRole.ONE) >> { it }
 		1 * service.setEndOfGame(game)
+		1 * service.getPlayerByRole(game, PlayerRole.ONE) >> p1
 		1 * userService.scoreWin(p1)
+		1 * service.getOpponentOf(game, PlayerRole.ONE) >> p2
 		1 * userService.scoreLoose(p2)
 		1 * service.save(game)
 		0 * _
@@ -188,8 +197,7 @@ class GameFacadeSpec extends Specification {
 		given:
 		Board b = Mock(Board)
 		Game g = Game.builder()
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.board(b)
 						.build()
 		when:
@@ -207,8 +215,7 @@ class GameFacadeSpec extends Specification {
 	def "move fails when game ended"() {
 		given:
 		Game g = Game.builder()
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.build()
 		when:
 		facade.move('someid', PlayerRole.TWO, 4i)
@@ -236,7 +243,7 @@ class GameFacadeSpec extends Specification {
 		given:
 		User p1 = User.builder().screenName("Kirk").build()
 		User p2 = User.builder().screenName("Bones").build()
-		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game g = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		when:
 		//noinspection GroovyAccessibility
@@ -245,7 +252,9 @@ class GameFacadeSpec extends Specification {
 		then: 'interactions'
 		1 * service.increaseScore(g, PlayerRole.ONE)
 		1 * service.setEndOfGame(g)
+		1 * service.getPlayerByRole(g, PlayerRole.ONE) >> p1
 		1 * userService.scoreWin(p1)
+		1 * service.getOpponentOf(g, PlayerRole.ONE) >> p2
 		1 * userService.scoreLoose(p2)
 		0 * _
 	}
@@ -254,7 +263,7 @@ class GameFacadeSpec extends Specification {
 		given:
 		User p1 = User.builder().screenName("Kirk").build()
 		User p2 = User.builder().screenName("Bones").build()
-		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game g = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		when:
 		//noinspection GroovyAccessibility
@@ -263,7 +272,9 @@ class GameFacadeSpec extends Specification {
 		then: 'interactions'
 		1 * service.increaseScore(g, PlayerRole.TWO)
 		1 * service.setEndOfGame(g)
+		1 * service.getPlayerByRole(g, PlayerRole.TWO) >> p2
 		1 * userService.scoreWin(p2)
+		1 * service.getOpponentOf(g, PlayerRole.TWO) >> p1
 		1 * userService.scoreLoose(p1)
 		0 * _
 	}
@@ -272,7 +283,7 @@ class GameFacadeSpec extends Specification {
 		given:
 		User p1 = User.builder().screenName("Kirk").build()
 		User p2 = User.builder().screenName("Bones").build()
-		Game g = Game.builder().playerOne(p1).playerTwo(p2).build()
+		Game g = Game.builder().playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2]).build()
 
 		when:
 		//noinspection GroovyAccessibility
@@ -281,7 +292,9 @@ class GameFacadeSpec extends Specification {
 		then: 'interactions'
 		1 * service.increaseScore(g, null)
 		1 * service.setEndOfGame(g)
+		1 * service.getPlayerByRole(g, PlayerRole.ONE) >> p1
 		1 * userService.scoreDraw(p1)
+		1 * service.getPlayerByRole(g, PlayerRole.TWO) >> p2
 		1 * userService.scoreDraw(p2)
 		0 * _
 	}
@@ -294,13 +307,11 @@ class GameFacadeSpec extends Specification {
 		User p2 = Mock(User)
 		def games = (1..2).collect {
 			Game.builder()
-							.playerOne(p1)
-							.playerTwo(p2)
+							.playersByRole([(PlayerRole.ONE): p1, (PlayerRole.TWO): p2])
 							.build()
 		}
 		def otherGame = Game.builder()
-						.playerOne(Mock(User))
-						.playerTwo(Mock(User))
+						.playersByRole([(PlayerRole.ONE): Mock(User), (PlayerRole.TWO): Mock(User)])
 						.build()
 		games << otherGame
 
