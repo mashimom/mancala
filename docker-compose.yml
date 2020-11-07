@@ -4,8 +4,8 @@ services:
   app:
     image: org.shimomoto/mancala:latest
     restart: always
-    ports:
-      - '8080:8080'
+    #    ports:
+    #      - '8080:8080'
     expose:
       - '8080'
     volumes:
@@ -35,10 +35,12 @@ services:
       - ./src/deployment/certs/example.key:/etc/letsencrypt/shimomoto/privkey.pem:ro
   prometheus:
     image: prom/prometheus:v2.22.1
-    ports:
-      - '9090:9090'
-    expose:
-      - '9090'
+    # In order to see prometheus metrics you can uncomment the ports,
+    # in production like it would on a different machine.
+    #    ports:
+    #      - '9090:9090'
+    #    expose:
+    #      - '9090'
     volumes:
       - ./src/deployment/prometheus.yml:/etc/prometheus/prometheus.yml
     command: --config.file=/etc/prometheus/prometheus.yml
