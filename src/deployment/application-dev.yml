@@ -15,21 +15,4 @@ spring:
   datasource:
     url: "jdbc:h2:file:/data/mancala"
     driverClassName: org.h2.Driver
-#      role:
-#    ignored: /**
-#    basic:
-#      enable: true
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#    enabled-by-default: true
-#  endpoint:
-#    env:
-#      enabled: true
-#    configprops:
-#      enabled: true
-#    info:
-#      enabled: true
 
