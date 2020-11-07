@@ -18,6 +18,21 @@ services:
       timeout: 5s
       retries: 5
       start_period: 25s
+  proxy:
+    image: library/nginx:stable-alpine
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+    links:
+      - app
+    volumes:
+      - ./src/deployment/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./src/deployment/certs/example.crt:/etc/letsencrypt/shimomoto/fullchain.pem:ro
+      - ./src/deployment/certs/example.key:/etc/letsencrypt/shimomoto/privkey.pem:ro
   prometheus:
     image: prom/prometheus:v2.22.1
     ports:
