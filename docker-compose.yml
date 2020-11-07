@@ -18,5 +18,16 @@ services:
       timeout: 5s
       retries: 5
       start_period: 25s
+  prometheus:
+    image: prom/prometheus:v2.22.1
+    ports:
+      - '9090:9090'
+    expose:
+      - '9090'
+    volumes:
+      - ./src/deployment/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --config.file=/etc/prometheus/prometheus.yml
+    links:
+      - app
 volumes:
   datavolume:
