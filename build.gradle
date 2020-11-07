@@ -65,6 +65,7 @@ dependencies {
 	implementation 'commons-codec:commons-codec:1.15'
 	implementation 'com.codepoetics:protonpack:1.16'
 
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	runtimeOnly 'com.h2database:h2'
 
 	testCompile 'org.codehaus.groovy:groovy-all:2.5.12'
