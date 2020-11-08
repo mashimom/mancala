@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>org.shimomoto.mancala.service.BoardService</OriginalElement>
+  <nodes>
+    <node x="0.0" y="926.0403540037821">org.shimomoto.mancala.service.UserService</node>
+    <node x="257.378876609849" y="1738.0696793523439">org.shimomoto.mancala.service.WaitRoomService</node>
+    <node x="350.44983435180905" y="1342.926705012942">org.shimomoto.mancala.service.UserFacade</node>
+    <node x="821.89250148159" y="845.5403540037818">org.shimomoto.mancala.service.GameService</node>
+    <node x="337.4498343518088" y="469.9199076269766">org.shimomoto.mancala.service.GameFacade</node>
+    <node x="238.83182055518137" y="0.0">org.shimomoto.mancala.service.BoardService</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="org.shimomoto.mancala.service.GameFacade" target="org.shimomoto.mancala.service.BoardService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="org.shimomoto.mancala.service.UserFacade" target="org.shimomoto.mancala.service.UserService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="org.shimomoto.mancala.service.GameFacade" target="org.shimomoto.mancala.service.GameService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="org.shimomoto.mancala.service.GameFacade" target="org.shimomoto.mancala.service.UserService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="org.shimomoto.mancala.service.UserFacade" target="org.shimomoto.mancala.service.GameService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="org.shimomoto.mancala.service.UserFacade" target="org.shimomoto.mancala.service.WaitRoomService">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Circular" zoom="0.9" x="612.5" y="1148.0" />
+  <SelectedNodes>
+    <node>org.shimomoto.mancala.service.UserService</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>public</VISIBILITY>
+</Diagram>
+

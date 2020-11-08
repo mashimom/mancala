@@ -1,0 +1,43 @@
+@startuml
+title Mancala game - C2 diagram
+
+skinparam linetype ortho
+skinparam arrowcolor indigo
+skinparam actor {
+    BackgroundColor gray
+    BorderColor gray
+    Shadowing false
+}
+
+skinparam card {
+    BackgroundColor ghostWhite
+    BorderColor gray
+    Shadowing false
+    BorderStyle dashed
+    RoundCorner 30
+}
+
+skinparam rectangle {
+    BackgroundColor lightSteelBlue
+}
+
+' DIAGRAM START
+
+actor player as "Player"
+
+card system as "System" {
+    rectangle mancala_api as "Mancala back-end"
+    rectangle reverse_proxy as "API gateway"
+    rectangle authentication as "Authentication"
+    rectangle monitoring as "Monitoring"
+    rectangle datastore as "Data store"
+}
+
+player -down- reverse_proxy
+reverse_proxy -right-> authentication
+authentication -> reverse_proxy
+reverse_proxy -down-> mancala_api
+monitoring -> mancala_api
+mancala_api -down-> datastore
+
+@enduml
