@@ -38,5 +38,9 @@ jobs:
         run: ./gradlew bootJar publishToMavenLocal
       - uses: actions/upload-artifact@v2
         with:
-          name: spring boot (fatjar,sources,javadoc)
+          name: fatjar
           path: build/libs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: reports
+          path: build/reports
