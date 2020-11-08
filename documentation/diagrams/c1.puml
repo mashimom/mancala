@@ -1,0 +1,36 @@
+@startuml
+
+title Mancala game - C1 diagram
+
+skinparam linetype ortho
+skinparam arrowcolor indigo
+skinparam actor {
+    BackgroundColor gray
+    BorderColor gray
+    Shadowing false
+}
+
+skinparam card {
+    BackgroundColor ghostWhite
+    BorderColor gray
+    Shadowing false
+    BorderStyle dashed
+    RoundCorner 30
+}
+
+skinparam rectangle {
+    BackgroundColor lightSteelBlue
+}
+
+' DIAGRAM START
+
+actor player1 as "player A"
+actor player2 as "player B"
+card system as "System" {
+    rectangle mancala_api as "Mancala API"
+}
+
+player1 -down-> mancala_api
+player2 -down-> mancala_api
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+
+title Deployment diagram
+
+'skinparam linetype ortho
+skinparam arrowcolor indigo
+
+skinparam node {
+    BackgroundColor ghostWhite
+    BorderColor gray
+    Shadowing false
+    BorderStyle dashed
+    RoundCorner 30
+}
+
+skinparam component {
+    BackgroundColor lightSteelBlue
+    BorderColor gray
+    Shadowing false
+}
+
+skinparam interface {
+    BackgroundColor lightSteelBlue
+    BorderColor gray
+    Shadowing false
+}
+
+' DIAGRAM START
+
+node public_server as "Public server" {
+    HTTPS -down- [external_proxy]
+    HTTPS - [authentication]
+    [external_proxy] - [authentication]
+}
+
+node app_server as "Application server" {
+    [external_proxy] -down- HTTP : authenticated
+    HTTP - [mancala]
+    [mancala]  -down- datastore
+}
+
+@enduml

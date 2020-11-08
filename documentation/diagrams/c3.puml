@@ -1,0 +1,49 @@
+@startuml
+
+title Mancala game - C3 diagram
+
+skinparam linetype ortho
+skinparam arrowcolor indigo
+skinparam actor {
+    BackgroundColor gray
+    BorderColor gray
+    Shadowing false
+}
+
+skinparam card {
+    BackgroundColor ghostWhite
+    BorderColor gray
+    Shadowing false
+    BorderStyle dashed
+    RoundCorner 30
+}
+
+skinparam rectangle {
+    BackgroundColor lightSteelBlue
+}
+
+' DIAGRAM START
+rectangle datastore as "Data store"
+rectangle monitoring as "Monitoring"
+rectangle authentication as "Authentication"
+rectangle reverse_proxy as "API gateway"
+
+card mancala_backend as "Mancala back-end system" {
+    rectangle game as "Game" {
+        rectangle board as "Board"
+    }
+    rectangle user as "User"
+    rectangle waitroom as "Waiting Room"
+}
+
+reverse_proxy -right-> authentication
+authentication -> reverse_proxy
+reverse_proxy -down-> mancala_backend
+monitoring -> mancala_backend
+mancala_backend -down-> datastore
+
+user - game
+user - waitroom
+waitroom .up. game
+
+@enduml
