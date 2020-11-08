@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew check
       - name: assembling
         run: ./gradlew bootJar publishToMavenLocal
-#      - uses: actions/upload-artifact@v2
-#        with:
-#          name: spring boot (fatjar,sources,javadoc)
-#          path: build/libs
+      - uses: actions/upload-artifact@v2
+        with:
+          name: spring boot (fatjar,sources,javadoc)
+          path: build/libs
